@@ -1,0 +1,35 @@
+{
+  "name": "sepbot",
+  "version": "1.0.0",
+  "description": "discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CsepJ/bot.git"
+  },
+  "keywords": [
+    "Sepbot"
+  ],
+  "author": "SP",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CsepJ/bot/issues"
+  },
+  "homepage": "https://github.com/CsepJ/bot#readme",
+  "dependencies": {
+    "@discordjs/opus": "^0.4.0",
+    "cheerio": "^1.0.0-rc.5",
+    "discord.js": "^12.5.1",
+    "express": "^4.17.1",
+    "ffmpeg-static": "^4.2.7",
+    "opusscript": "0.0.7",
+    "request": "^2.88.2",
+    "simple-youtube-api": "^5.2.1",
+    "unescape": "^1.0.1",
+    "ytdl-core": "^4.5.0"
+  }
+}
