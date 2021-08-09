@@ -3,13 +3,14 @@ const request = require("request");
 const Database = require("@replit/database");
 const db = new Database();
 const config = require('./config');
-const keepAlive = require("./server.js");
-const help = require("./cmd.js");
+const keepAlive = require("./server");
+const help = require("./cmd");
 const version = config.version;
 const Quiz = require('./quiz/quiz');
 const { prefix } = require('./config');
-const quiz_cmd = require("./quiz/quiz-cmd.js");
+const quiz_cmd = require("./quiz/quiz-cmd");
 const filtering = require("./filter");
+const dateFormat = require("./date-format");
 const fs = require("fs");
 const quiz = new Quiz(db);
 const bot = new Client({
@@ -49,21 +50,28 @@ function translator(from, to, msg){
 }
 return options;
 }
+bot.on("interactionCreate", async inter => {
+  if(inter.isCommand()){
+    bot.getS
+  }
+})
 bot.on('ready', async () => {
     console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username);
 });
 bot.on("guildCreate", (guild) => {
+  if(guild.me.permissions.has("SEND_MESSAGES")){
     const welcomeEmbed = new MessageEmbed()
     .setColor("#F44444")
     .setTitle("안녕하세요 셉봇입니다")
     .setDescription(`도움말: ${config.prefix}명령어`);
     guild.systemChannel.send({embeds: [welcomeEmbed]});
+  }
 });
 bot.on('messageCreate', async message => {
   try{
   if(message.author.bot) return;
   const msg = message.content;
-  const channelID = String(message.channel.id);
+  const channelID = message.channel.id;
   const userID=message.author.id;
   if(msg.startsWith(`${prefix}이름 `)){
     var name=filtering.filter(msg.slice(prefix.length+3));
@@ -77,7 +85,7 @@ bot.on('messageCreate', async message => {
   }
   if(msg.startsWith(`${prefix}한국어 `)){
     var value = msg.slice(prefix.length+4);
-    let translateOption = translator("ko","en", value);
+    var translateOption = translator("ko","en", value);
     request.post(translateOption, (err,res,body) => {
       if(err) throw err;
       let translateResult = body["message"]["result"]["translatedText"];
@@ -95,7 +103,7 @@ bot.on('messageCreate', async message => {
   }
   if(msg.startsWith(`${prefix}영어 `)){
   var value = msg.slice(prefix.length+3);
-  let translateOption = translator("en","ko", value);
+  var translateOption = translator("en","ko", value);
   request.post(translateOption, (err,res,body) => {
     if(err) throw err;
     let translateResult = body["message"]["result"]["translatedText"];
@@ -146,8 +154,7 @@ bot.on('messageCreate', async message => {
         .setColor("F44444")
         .setThumbnail(add.result.rankimage)
         .setDescription("__"+add.result.point+"점이 되셨습니다.__")
-        .addField("얻은 포인트", `+${random}점`)
-        .setURL("https://sepcod.com");
+        .addField("얻은 포인트", `+${random}점`);
         message.channel.send({embeds: [correctEmbed]});
         }else{
           console.log("Quiz Error 0")
@@ -164,14 +171,15 @@ bot.on('messageCreate', async message => {
     }
   }
   if (msg.startsWith(config.prefix)) {
-    let command = msg.slice(config.prefix.length);
+    let command = msg.slice(config.prefix.length).trim();
+    command = command.includes(" ")?command.replace(/ /gi, ""):command;
     //startsWith cmd
     switch (command) {
       case "":
         let Embed = new MessageEmbed()
         .setAuthor("Sepbot", "https://imgur.com/SF3ulIX.png")
         .setTitle("안녕하세요, 셉봇입니다.")
-        .setDescription(`사용방법: ${config.prefix}명령어`)
+        .setDescription(`**사용방법: __${config.prefix}명령어__**`)
         .setColor("#F44444")
         .setFooter(`Ver-${version}`);
         message.channel.send({embeds: [Embed]});
@@ -188,11 +196,32 @@ bot.on('messageCreate', async message => {
         for(let i = 0; i < help.length;i++){
           cmdEmbed.addFields(
             {
-              name : `> **${help[i]["cmd"]}**`, value : help[i]["description"], inline : false
+              name : `> **__${help[i]["cmd"]}__**`, value : help[i]["description"], inline : false
             }
           )
         }
         message.channel.send({embeds: [cmdEmbed]});
+        break;
+      case "정보":
+      case "서버":
+        var joinDate = new Date(message.guild.joinedAt);
+        let infoEmbed = new MessageEmbed()
+        .setColor("#F44444")
+        .setTitle(message.guild.name+"서버의 정보")
+        .setThumbnail(message.guild.iconURL({dynamic: false}))
+        .addFields({
+          name: "서버 이름", value: message.guild.name, inline: true
+        },{
+          name: "서버 참가", value: dateFormat.date(joinDate), inline: true
+        },{
+          name: "서버 멤버수", value: message.guild.memberCount, inline: false
+        },{
+          name: "서버 채널수", value: message.guild.channels.channelCountWithoutThreads, inline: true
+        },{
+          name: "만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: false
+        })
+        .setTimestamp();
+        message.channel.send({embeds: [infoEmbed]});
         break;
       case "내역":
       case "로그":
@@ -200,7 +229,7 @@ bot.on('messageCreate', async message => {
           let logEmbed = new MessageEmbed()
           .setColor("#F44444")
           .setTitle("셉봇의 업데이트 내역")
-          .addField("> 업데이트 "+version, "데이터베이스 수정", false)
+          .addField("> 업데이트 ("+version+")", "DiscordJS v13 업데이트", false)
           .setTimestamp()
           .setFooter("버전 : "+version);
           message.channel.send({embeds: [logEmbed]});
@@ -227,8 +256,7 @@ bot.on('messageCreate', async message => {
           .setColor("F44444")
           .setTimestamp()
           .setTitle("성공적으로 가입을 했습니다!")
-          .setDescription(`이제 "${prefix}퀴즈" 명령어로 시작해보세요!`)
-          .setURL("https://sepcod.com");
+          .setDescription(`이제 "${prefix}퀴즈" 명령어로 시작해보세요!`);
           message.channel.send({embeds: [signupEmbed]});
         }
       break;
@@ -240,8 +268,7 @@ bot.on('messageCreate', async message => {
         .addFields({
           name : setWord["result"]["quiz"], value : "종류 : "+setWord["result"]["type"], inline : true
         })
-        .setColor("F44444")
-        .setURL("https://sepcod.com");
+        .setColor("F44444");
         message.channel.send({embeds: [wordEmbed]});
       break;
       case "힌트":
@@ -249,7 +276,7 @@ bot.on('messageCreate', async message => {
         if(hint.isPlaying){
           let hintEmbed = new MessageEmbed()
           .setTitle("초성퀴즈 힌트")
-          .setDescription("힌트 : "+hint.result)
+          .setDescription("힌트 : ||"+hint.result+"||")
           .setColor("F44444");
           message.channel.send({embeds: [hintEmbed]});
         }else{
@@ -261,29 +288,11 @@ bot.on('messageCreate', async message => {
         if(pass.isPlaying){
           let passEmbed = new MessageEmbed()
           .setTitle("초성퀴즈 패스")
-          .setDescription("정답 : "+pass.result)
+          .setDescription("정답 : ||"+pass.result+"||")
           .setColor("F44444");
           message.channel.send({embeds: [passEmbed]});
         }else{
           message.channel.send(pass.reason);
-        }
-      break;
-      case "정보":
-        var user = await quiz.getUser(userID);
-        if(user["isSign"]){
-        var userData = user["user-object-0"];
-        let statusEmbed = new MessageEmbed()
-        .setTitle("[ "+userData.rankname+" ] "+userData.name)
-        .addField(userData.name, userData.rankname)
-        .setDescription("Point : "+userData.point)
-        .setColor("F44444")
-        .setThumbnail(userData.rankimage)
-        .setURL(userData.rankimage)
-        .setFooter("To. "+userData.name)
-        .setTimestamp();
-        message.channel.send({embeds: [statusEmbed]});
-        }else{
-          message.channel.send(quiz.error[0]);
         }
       break;
       case "랭크":
