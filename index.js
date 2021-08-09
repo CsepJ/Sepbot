@@ -50,13 +50,8 @@ function translator(from, to, msg){
 }
 return options;
 }
-bot.on("interactionCreate", async inter => {
-  if(inter.isCommand()){
-    bot.getS
-  }
-})
 bot.on('ready', async () => {
-    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username);
+    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID"+bot.user.id);
 });
 bot.on("guildCreate", (guild) => {
   if(guild.me.permissions.has("SEND_MESSAGES")){
