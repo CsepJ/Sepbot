@@ -8,7 +8,7 @@ let isAmPm = hours > 12?"PM":"AM";
 hours = hours>12?hours-12:hours;
 month = month >= 10?month:"0"+month;
 date = date >= 10?date:"0"+date;
-let result = year+"/"+month+"/"+date+"/"+isAmPm+" - "+hours+":"+minuate;
+let result = year+"/"+month+"/"+date+"/("+isAmPm+")"+hours+":"+minuate;
 return result;
 }
 module.exports = {

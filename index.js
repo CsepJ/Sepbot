@@ -51,7 +51,7 @@ function translator(from, to, msg){
 return options;
 }
 bot.on('ready', async () => {
-    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID"+bot.user.id);
+    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID: "+bot.user.id);
 });
 bot.on("guildCreate", (guild) => {
   if(guild.me.permissions.has("SEND_MESSAGES")){
@@ -152,14 +152,12 @@ bot.on('messageCreate', async message => {
         .addField("얻은 포인트", `+${random}점`);
         message.channel.send({embeds: [correctEmbed]});
         }else{
-          console.log("Quiz Error 0")
           message.channel.send(quiz.error[0]);
         }
       }else{
         if(isAnswer["result"]["correct"]!=null){
           message.channel.send(message.author.username+"님, "+isAnswer["result"]["correct"]["length"]+"개 ("+isAnswer["result"]["correct"]["percentage"]+"%) 맞았습니다.")
         }else{
-          console.log("IsAnswer reason");
           message.channel.send(isAnswer["reason"]);
         }
       }
@@ -187,7 +185,8 @@ bot.on('messageCreate', async message => {
       case "도와줘":
         let cmdEmbed = new MessageEmbed()
         .setTitle("셉봇 명령어 리스트")
-        .setColor("#F44444");
+        .setColor("#F44444")
+				.setFooter("∴[단어] 는 변형해서 입력해주세요∴");
         for(let i = 0; i < help.length;i++){
           cmdEmbed.addFields(
             {
@@ -197,23 +196,37 @@ bot.on('messageCreate', async message => {
         }
         message.channel.send({embeds: [cmdEmbed]});
         break;
-      case "정보":
+			case "정보":
+        var user = await quiz.getUser(userID);
+        if(user["isSign"]){
+        var userData = user["user-object-0"];
+        let statusEmbed = new MessageEmbed()
+        .setTitle("[ "+userData.rankname+" ] "+userData.name)
+        .addField(userData.name, userData.rankname)
+        .setDescription("Point : "+userData.point)
+        .setColor("F44444")
+        .setThumbnail(userData.rankimage)
+        .setFooter("To. "+userData.name)
+        .setTimestamp();
+        message.channel.send({embeds: [statusEmbed]});
+        }else{
+          message.channel.send(quiz.error[0]);
+        }
+      break;
       case "서버":
         var joinDate = new Date(message.guild.joinedAt);
         let infoEmbed = new MessageEmbed()
         .setColor("#F44444")
         .setTitle(message.guild.name+"서버의 정보")
-        .setThumbnail(message.guild.iconURL({dynamic: false}))
+        .setThumbnail(message.guild.iconURL())
         .addFields({
-          name: "서버 이름", value: message.guild.name, inline: true
+          name: "> 서버 이름", value: message.guild.name, inline: true
         },{
-          name: "서버 참가", value: dateFormat.date(joinDate), inline: true
+          name: `> ${bot.user.username} 참가 날짜`, value: dateFormat.date(joinDate), inline: true
         },{
-          name: "서버 멤버수", value: message.guild.memberCount, inline: false
+          name: "> 서버 멤버수", value: message.guild.memberCount+"명", inline: false
         },{
-          name: "서버 채널수", value: message.guild.channels.channelCountWithoutThreads, inline: true
-        },{
-          name: "만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: false
+          name: "> 만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: false
         })
         .setTimestamp();
         message.channel.send({embeds: [infoEmbed]});
@@ -261,7 +274,7 @@ bot.on('messageCreate', async message => {
         .setTitle(setWord["getWord"]==true?"초성퀴즈 진행중!":"초성퀴즈 시작!")
         .setDescription("S[답] 혹은 s[답]으로 답을 맞추시면 됩니다.")
         .addFields({
-          name : setWord["result"]["quiz"], value : "종류 : "+setWord["result"]["type"], inline : true
+          name : "초성: "+setWord["result"]["word"], value : "종류 : "+setWord["result"]["type"], inline : true
         })
         .setColor("F44444");
         message.channel.send({embeds: [wordEmbed]});
