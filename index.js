@@ -13,10 +13,10 @@ const filtering = require("./filter");
 const fs = require("fs");
 const quiz = new Quiz(db);
 const bot = new Client({
-  "presence" : {
-    "activity" : {
-      "type" : "LISTENING",
-      "name" : "Sepbot is running"
+  presence : {
+    activity : {
+      type : "LISTENING",
+      name : "Sepbot is running"
     }
   },
   intents: [
@@ -37,8 +37,8 @@ function translator(from, to, msg){
   let options = {
     url : "https://openapi.naver.com/v1/papago/n2mt",
     headers: {
-      'X-Naver-Client-Id': 'QEC1ffdCU9YChnp8sJVx',
-      'X-Naver-Client-Secret': 'dVRhNnUFvu'
+      'X-Naver-Client-Id': config.naverid,
+      'X-Naver-Client-Secret': config.naverpw
     },
     form: {
       'source': from,
@@ -50,7 +50,7 @@ function translator(from, to, msg){
 return options;
 }
 bot.on('ready', async () => {
-    console.log("Sepbot is running");
+    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username);
 });
 bot.on("guildCreate", (guild) => {
     const welcomeEmbed = new MessageEmbed()
@@ -75,8 +75,8 @@ bot.on('messageCreate', async message => {
       message.channel.send(quiz.error[0]);
     }
   }
-  if(msg.startsWith(`${prefix}번역 `)){
-    var value = msg.slice(prefix.length+3);
+  if(msg.startsWith(`${prefix}한국어 `)){
+    var value = msg.slice(prefix.length+4);
     let translateOption = translator("ko","en", value);
     request.post(translateOption, (err,res,body) => {
       if(err) throw err;
@@ -93,7 +93,7 @@ bot.on('messageCreate', async message => {
     message.channel.send({embeds: [translateEmbed]});
   });
   }
-  if(msg.startsWith(`${prefix} 번역 `)){
+  if(msg.startsWith(`${prefix}영어 `)){
   var value = msg.slice(prefix.length+3);
   let translateOption = translator("en","ko", value);
   request.post(translateOption, (err,res,body) => {
