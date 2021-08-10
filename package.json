@@ -19,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/CsepJ/Sepbot/issues"
   },
-  "homepage": "https://sepsite.kro.kr",
+  "homepage": "https://sepcod.com",
   "dependencies": {
     "@replit/database": "^2.0.1",
     "discord.js": "^13.0.1",

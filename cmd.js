@@ -7,9 +7,7 @@ module.exports = [
     },{
       cmd : `${config.prefix}정보`, description : `서버의 정보를 알려드립니다`
     },{
-      cmd: `${config.prefix}한국어 [단어]`, description : `셉봇이 한국어를 영어로 번역해드립니다`
-    },{
-      cmd: `${config.prefix}영어 [단어]`, description : `셉봇이 영어를 한국어로 번역해드립니다`
+			cmd : `/`, description: "채팅입력란에 입력해보세요!"
     },{
       cmd : `${config.prefix}내역`, description : `셉봇이 업데이트 소식을 알려드립니다`
     }

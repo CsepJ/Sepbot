@@ -10,6 +10,7 @@ const config = require('./config');
 const keepAlive = require("./server");
 const help = require("./cmd");
 const version = config.version;
+const wait = require("util").promisify(setTimeout);
 const Quiz = require('./quiz/quiz');
 const { prefix } = require('./config');
 const quiz_cmd = require("./quiz/quiz-cmd");
@@ -95,7 +96,7 @@ bot.on('ready', async () => {
     }]
   }];
   await bot.application?.commands.set(commands);
-    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username);
+    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID: "+bot.user.id);
 });
 bot.on("interactionCreate",async inter => {
   if(inter.isSelectMenu()){
@@ -168,7 +169,6 @@ bot.on("interactionCreate",async inter => {
           value: e
         }
       });
-      console.log(nickmenus);
       let setNickname = new MessageActionRow()
       .addComponents(
         new MessageSelectMenu()
@@ -217,6 +217,7 @@ bot.on("interactionCreate",async inter => {
       await inter.reply({embeds: [translateEmbed]});
     });
     }else if(commandName == "이름"){
+			let userID = inter.user.id;
       var name=filtering.filter(options.getString("바꿀이름"));
       var setting = await quiz.setName(userID, name);
       if(setting.isSign){
@@ -229,11 +230,13 @@ bot.on("interactionCreate",async inter => {
 });
 bot.on("guildCreate", (guild) => {
   if(guild.me.permissions.has("SEND_MESSAGES")){
+		if(guild.systemChannel){
     const welcomeEmbed = new MessageEmbed()
     .setColor("#F44444")
     .setTitle("안녕하세요 셉봇입니다")
     .setDescription(`도움말: ${config.prefix}명령어`);
     guild.systemChannel.send({embeds: [welcomeEmbed]});
+		}
   }
 });
 bot.on('messageCreate', async message => {
@@ -252,42 +255,6 @@ bot.on('messageCreate', async message => {
       message.channel.send(quiz.error[0]);
     }
   }
-  if(msg.startsWith(`${prefix}한국어 `)){
-    var value = msg.slice(prefix.length+4);
-    var translateOption = translator("ko","en", value);
-    request.post(translateOption, (err,res,body) => {
-      if(err) throw err;
-      let translateResult = body["message"]["result"]["translatedText"];
-    let translateEmbed = new MessageEmbed()
-    .setTitle("단어 번역")
-    .setColor("#F44444")
-    .addFields({
-      "name" : "**> "+value+"**", "value" : "한국어(Korean)", "inline" : false
-    },{
-      "name" : "**> "+translateResult+"**", "value" : "영어(English)", "inline" : false
-    })
-    .setTimestamp();
-    message.channel.send({embeds: [translateEmbed]});
-  });
-  }
-  if(msg.startsWith(`${prefix}영어 `)){
-  var value = msg.slice(prefix.length+3);
-  var translateOption = translator("en","ko", value);
-  request.post(translateOption, (err,res,body) => {
-    if(err) throw err;
-    let translateResult = body["message"]["result"]["translatedText"];
-  let translateEmbed = new MessageEmbed()
-  .setTitle("Translating Word")
-  .setColor("#F44444")
-  .addFields({
-    "name" : "**> "+value+"**", "value" : "영어(English)", "inline" : false
-  },{
-    "name" : "**> "+translateResult+"**", "value" : "한국어(Korean)", "inline" : false
-  })
-  .setTimestamp();
-  message.channel.send({embeds: [translateEmbed]});
-});
-}
   if(msg.startsWith(`${prefix}설정 `)){
     var num = msg.slice(prefix.length+3)
     if(isNaN(num)){
@@ -308,29 +275,6 @@ bot.on('messageCreate', async message => {
       }
     }
   }
-  quiz.getChannel(channelID)
-  .then(async (channelObject) => {
-    if(channelObject["isPlaying"]){
-    var isAnswer = await quiz.isAnswer(channelID, msg);
-    if(isAnswer["result"]["bool"]){
-      var user = await quiz.getUser(userID);
-      var isSign = user["isSign"];
-      if(isSign){
-        var random = Math.floor(Math.random() * 20)+1;
-        var add = await quiz.add(userID, "point", random);
-        var correctEmbed = new MessageEmbed()
-        .setTitle("***[ "+add.result.rankname+" ] "+add.result.name+"님이 맞추셨습니다***")
-        .setColor("F44444")
-        .setThumbnail(add.result.rankimage)
-        .setDescription("__"+add.result.point+"점이 되셨습니다.__")
-        .addField("얻은 포인트", `+${random}점`);
-        message.channel.send({embeds: [correctEmbed]});
-      }else{
-        message.channel.send(quiz.error[0]);
-      }
-    }
-  }
-});
   if(msg.startsWith("S") || msg.startsWith("s")){
     var answerMsg = msg.slice(1);
     var isAnswer = await quiz.isAnswer(channelID, answerMsg);
@@ -367,11 +311,10 @@ bot.on('messageCreate', async message => {
     switch (command) {
       case "":
         let Embed = new MessageEmbed()
-        .setAuthor("Sepbot", "https://imgur.com/SF3ulIX.png")
+        .setFooter("Ver-"+version, bot.user.displayAvatarURL({dynamic: false, format: "png"}))
         .setTitle("안녕하세요, 셉봇입니다.")
         .setDescription(`**사용방법: __${config.prefix}명령어__**`)
-        .setColor("#F44444")
-        .setFooter(`Ver-${version}`);
+        .setColor("#F44444");
         message.channel.send({embeds: [Embed]});
         break;
       case "명령어":
@@ -383,8 +326,8 @@ bot.on('messageCreate', async message => {
         let cmdEmbed = new MessageEmbed()
         .setTitle("셉봇 명령어 리스트")
         .setColor("#F44444")
-				.setFooter("∴[단어] 는 변형해서 입력해주세요∴");
-        for(let i = 0; i < help.length;i++){
+				.setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
+				for(let i = 0; i < help.length;i++){
           cmdEmbed.addFields(
             {
               name : `> **__${help[i]["cmd"]}__**`, value : help[i]["description"], inline : false
@@ -398,12 +341,13 @@ bot.on('messageCreate', async message => {
           var user = await quiz.getUser(userID);
           if(user["isSign"]){
           var userData = user["user-object-0"];
+					console.log(userData.rankimage);
           let statusEmbed = new MessageEmbed()
           .setTitle("[ "+userData.rankname+" ] "+userData.name)
           .addField(userData.name, userData.rankname)
           .setDescription("Point : "+userData.point)
           .setColor("F44444")
-          .setThumbnail(userData.rankimage)
+          .setAuthor(userData.rankname,userData.rankimage)
           .setFooter("To. "+userData.name)
           .setTimestamp();
           message.channel.send({embeds: [statusEmbed]});
@@ -474,7 +418,7 @@ bot.on('messageCreate', async message => {
         .setTitle(setWord["getWord"]==true?"초성퀴즈 진행중!":"초성퀴즈 시작!")
         .setDescription("S[답] 혹은 s[답]으로 답을 맞추시면 됩니다.")
         .addFields({
-          name : setWord["result"]["quiz"], value : "종류 : "+setWord["result"]["type"], inline : true
+          name : setWord["result"]["word"], value : "종류 : "+setWord["result"]["type"], inline : true
         })
         .setColor("F44444");
         message.channel.send({embeds: [wordEmbed]});
@@ -484,7 +428,7 @@ bot.on('messageCreate', async message => {
         if(hint.isPlaying){
           let hintEmbed = new MessageEmbed()
           .setTitle("초성퀴즈 힌트")
-          .setDescription("힌트 : ||"+hint.result+"||")
+          .setDescription("힌트 : "+hint.result+"")
           .setColor("F44444");
           message.channel.send({embeds: [hintEmbed]});
         }else{
@@ -496,7 +440,7 @@ bot.on('messageCreate', async message => {
         if(pass.isPlaying){
           let passEmbed = new MessageEmbed()
           .setTitle("초성퀴즈 패스")
-          .setDescription("정답 : ||"+pass.result+"||")
+          .setDescription("정답 : "+pass.result+"")
           .setColor("F44444");
           message.channel.send({embeds: [passEmbed]});
         }else{
@@ -525,10 +469,9 @@ bot.on('messageCreate', async message => {
         var result = rankname.map((e,i) => {
           return "**"+(i+1)+"번**  | "+e+" | "+rankpoint[i]+"점";
         });
-        message.channel.send("DM으로 전송되었습니다")
-        .then(msg => {
-          msg.delete({timeout : 5000});
-        }).catch(e => console.log("Error in Shop\n\n"+e));
+        var nicknameList_goestoDM = await message.channel.send("DM으로 전송되었습니다");
+				await wait(5000);
+				await nicknameList_goestoDM.delete();
         message.author.send(result.join("\n===============\n"));
       break;
     }  //switch

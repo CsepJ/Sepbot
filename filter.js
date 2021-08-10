@@ -14,5 +14,5 @@ function filter(sentence){
 		return result;
 		}
 		module.exports = {
-			"filt" : filter
+			filter
 		}
