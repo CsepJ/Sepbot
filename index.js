@@ -93,7 +93,7 @@ bot.on('ready', async () => {
     }]
   }];
   await bot.application?.commands.set(commands);
-    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID: "+bot.user.id);
+    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID: "+bot.user.id+"\n==========\nBot-Version: "+config.version+"\nBot-Servers: "+bot.guilds.cache.size+"개");
 });
 bot.on("interactionCreate",async inter => {
   if(inter.isSelectMenu()){
@@ -330,7 +330,6 @@ bot.on('messageCreate', async message => {
           var user = await quiz.getUser(userID);
           if(user["isSign"]){
           var userData = user["user-object-0"];
-					console.log(userData.rankimage);
           let statusEmbed = new MessageEmbed()
           .setTitle("[ "+userData.rankname+" ] "+userData.name)
           .addField(userData.name, userData.rankname)
