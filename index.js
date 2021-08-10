@@ -101,7 +101,7 @@ bot.on("interactionCreate",async inter => {
   if(inter.isSelectMenu()){
     if(inter.customId === "Nickname"){
       let userID = inter.user.id;
-      var num = inter.values[0];
+      var num = quiz.ranknames.findIndex(e => e == inter.values[0]);
         var result = await quiz.setRank(userID, num);
         if(result["bool"]){
           var setRankEmbed = new MessageEmbed()
@@ -161,13 +161,14 @@ bot.on("interactionCreate",async inter => {
       }
     }else if(commandName == "설정"){
       let nicknames = quiz.ranknames;
-      let nickmenus = nicknames.forEach((e,i) => {
+      let nickmenus = nicknames.map((e,i) => {
         return {
           label: e,
           description: "칭호: "+e,
-          value: i
+          value: e
         }
       });
+      console.log(nickmenus);
       let setNickname = new MessageActionRow()
       .addComponents(
         new MessageSelectMenu()
