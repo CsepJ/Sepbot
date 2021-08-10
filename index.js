@@ -1,4 +1,8 @@
-const { Client, MessageEmbed, MessageFlags, MessageAttachment, MessageCollector, Message, APIMessage, Intents } = require('discord.js');
+const { Client, MessageActionRow, 
+  MessageButton, MessageSelectMenu, 
+  MessageEmbed, MessageFlags, 
+  MessageAttachment, MessageCollector, 
+  Intents } = require('discord.js');
 const request = require("request");
 const Database = require("@replit/database");
 const db = new Database();
@@ -14,12 +18,6 @@ const dateFormat = require("./date-format");
 const fs = require("fs");
 const quiz = new Quiz(db);
 const bot = new Client({
-  presence : {
-    activity : {
-      type : "LISTENING",
-      name : "Sepbot is running"
-    }
-  },
   intents: [
     Intents.FLAGS.GUILDS, 
     Intents.FLAGS.GUILD_MEMBERS, 
@@ -51,7 +49,182 @@ function translator(from, to, msg){
 return options;
 }
 bot.on('ready', async () => {
-    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID: "+bot.user.id);
+  bot.user.setPresence({activities: [{name: "Sepbot is running", type: "LISTENING"}]});
+  let commands = [
+    {
+    name: "명령어",
+    description: "사용방법을 알려줍니다"
+  },{
+    name: "정답",
+    description: "초성퀴즈 정답을 제출합니다",
+    options: [{
+      name: "정답",
+      description: "제출할 정답",
+      type: "STRING",
+      required: true
+    }]
+  },{
+    name: "이름",
+    description: "초성퀴즈 사용자이름을 바꿉니다",
+    options:[{
+      name: "바꿀이름",
+      description: "바꾸고 싶은 이름",
+      type: "STRING",
+      required: true
+  }]
+},{
+    name: "설정",
+    description: "칭호를 설정합니다"
+  },{
+    name: "한국어",
+    description: "한국어 => 영어로 번역합니다",
+    options: [{
+      name: "단어",
+      description: "번역할 단어",
+      type: "STRING",
+      required: true
+    }]
+  },{
+    name: "영어",
+    description: "영어 => 한국어로 번역합니다",
+    options: [{
+      name: "단어",
+      description: "번역할 단어",
+      type: "STRING",
+      required: true
+    }]
+  }];
+  await bot.application?.commands.set(commands);
+    console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username);
+});
+bot.on("interactionCreate",async inter => {
+  if(inter.isSelectMenu()){
+    if(inter.customId === "Nickname"){
+      let userID = inter.user.id;
+      var num = inter.values[0];
+        var result = await quiz.setRank(userID, num);
+        if(result["bool"]){
+          var setRankEmbed = new MessageEmbed()
+          .setTitle("**"+result.result.name+"**")
+          .setThumbnail(result.result.image)
+          .setColor("#F44444")
+          .setDescription("To."+result.result.name)
+          .setTimestamp();
+          await inter.reply({embeds: [setRankEmbed]});
+        }else{
+          await inter.reply(result.reason);
+        }
+    }
+  }
+  if(inter.isCommand()){
+    let { commandName, options, channelId } = inter;
+    if(commandName === "명령어"){
+      let cmdEmbed = new MessageEmbed()
+      .setTitle("셉봇 명령어 리스트")
+      .setColor("#F44444")
+      .setFooter("∴[단어] 는 변형해서 입력해주세요∴");
+      for(let i = 0; i < help.length;i++){
+        cmdEmbed.addFields(
+          {
+            name : `> **__${help[i]["cmd"]}__**`, value : help[i]["description"], inline : false
+          }
+        )
+      }
+      await inter.reply({embeds : [cmdEmbed]});
+    }else if(commandName === "정답"){
+      var answerMsg = options.getString("정답");
+      var isAnswer = await quiz.isAnswer(channelId, answerMsg);
+      var user = await quiz.getUser(userID);
+      var isSign = user["isSign"];
+      if(isAnswer["isPlaying"]){
+        if(isAnswer["result"]["bool"]){
+          if(isSign){
+          var random = Math.floor(Math.random() * 20)+1;
+          var add = await quiz.add(userID, "point", random);
+          var correctEmbed = new MessageEmbed()
+          .setTitle("***[ "+add.result.rankname+" ] "+add.result.name+"님이 맞추셨습니다***")
+          .setColor("F44444")
+          .setThumbnail(add.result.rankimage)
+          .setDescription("__"+add.result.point+"점이 되셨습니다.__")
+          .addField("얻은 포인트", `+${random}점`);
+          await inter.reply({embeds: [correctEmbed]});
+          }else{
+            await inter.reply(quiz.error[0]);
+          }
+        }else{
+          if(isAnswer["result"]["correct"]!=null){
+            await inter.reply(message.author.username+"님, "+isAnswer["result"]["correct"]["length"]+"개 ("+isAnswer["result"]["correct"]["percentage"]+"%) 맞았습니다.")
+          }else{
+            await inter.reply(isAnswer["reason"]);
+          }
+        }
+      }
+    }else if(commandName == "설정"){
+      let nicknames = quiz.ranknames;
+      let nickmenus = nicknames.forEach((e,i) => {
+        return {
+          label: e,
+          description: "칭호: "+e,
+          value: i
+        }
+      });
+      let setNickname = new MessageActionRow()
+      .addComponents(
+        new MessageSelectMenu()
+        .setCustomId("Nickname")
+        .setPlaceholder("칭호 없음")
+        .addOptions(nickmenus)
+      );
+      let setNicknameEmbed = new MessageEmbed()
+      .setTitle("칭호를 설정해주세요")
+      .setDescription("아래 메뉴바에서 칭호를 설정해주세요")
+      .setColor("F44444")
+      .setTimestamp();
+      await inter.reply({embeds: [setNicknameEmbed], components: [setNickname]});
+    }else if(commandName == "한국어"){
+      var value = options.getString("단어");
+      var translateOption = translator("ko","en", value);
+      request.post(translateOption, async (err,res,body) => {
+        if(err) throw err;
+        let translateResult = body["message"]["result"]["translatedText"];
+      let translateEmbed = new MessageEmbed()
+      .setTitle("단어 번역")
+      .setColor("#F44444")
+      .addFields({
+        "name" : "**> "+value+"**", "value" : "한국어(Korean)", "inline" : false
+      },{
+        "name" : "**> "+translateResult+"**", "value" : "영어(English)", "inline" : false
+      })
+      .setTimestamp();
+      await inter.reply({embeds: [translateEmbed]});
+    });
+    }else if(commandName == "영어"){
+      var value = options.getString("단어");
+      var translateOption = translator("en","ko", value);
+      request.post(translateOption, async (err,res,body) => {
+        if(err) throw err;
+        let translateResult = body["message"]["result"]["translatedText"];
+      let translateEmbed = new MessageEmbed()
+      .setTitle("단어 번역")
+      .setColor("#F44444")
+      .addFields({
+        "name" : "**> "+value+"**", "value" : "한국어(Korean)", "inline" : false
+      },{
+        "name" : "**> "+translateResult+"**", "value" : "영어(English)", "inline" : false
+      })
+      .setTimestamp();
+      await inter.reply({embeds: [translateEmbed]});
+    });
+    }else if(commandName == "이름"){
+      var name=filtering.filter(options.getString("바꿀이름"));
+      var setting = await quiz.setName(userID, name);
+      if(setting.isSign){
+        await inter.reply(name+"(으)로 이름을 바꾸셨습니다");
+      }else{
+        await inter.reply(quiz.error[0]);
+      }
+    }
+  }
 });
 bot.on("guildCreate", (guild) => {
   if(guild.me.permissions.has("SEND_MESSAGES")){
@@ -134,6 +307,29 @@ bot.on('messageCreate', async message => {
       }
     }
   }
+  quiz.getChannel(channelID)
+  .then(async (channelObject) => {
+    if(channelObject["isPlaying"]){
+    var isAnswer = await quiz.isAnswer(channelID, msg);
+    if(isAnswer["result"]["bool"]){
+      var user = await quiz.getUser(userID);
+      var isSign = user["isSign"];
+      if(isSign){
+        var random = Math.floor(Math.random() * 20)+1;
+        var add = await quiz.add(userID, "point", random);
+        var correctEmbed = new MessageEmbed()
+        .setTitle("***[ "+add.result.rankname+" ] "+add.result.name+"님이 맞추셨습니다***")
+        .setColor("F44444")
+        .setThumbnail(add.result.rankimage)
+        .setDescription("__"+add.result.point+"점이 되셨습니다.__")
+        .addField("얻은 포인트", `+${random}점`);
+        message.channel.send({embeds: [correctEmbed]});
+      }else{
+        message.channel.send(quiz.error[0]);
+      }
+    }
+  }
+});
   if(msg.startsWith("S") || msg.startsWith("s")){
     var answerMsg = msg.slice(1);
     var isAnswer = await quiz.isAnswer(channelID, answerMsg);
@@ -196,37 +392,40 @@ bot.on('messageCreate', async message => {
         }
         message.channel.send({embeds: [cmdEmbed]});
         break;
-			case "정보":
-        var user = await quiz.getUser(userID);
-        if(user["isSign"]){
-        var userData = user["user-object-0"];
-        let statusEmbed = new MessageEmbed()
-        .setTitle("[ "+userData.rankname+" ] "+userData.name)
-        .addField(userData.name, userData.rankname)
-        .setDescription("Point : "+userData.point)
-        .setColor("F44444")
-        .setThumbnail(userData.rankimage)
-        .setFooter("To. "+userData.name)
-        .setTimestamp();
-        message.channel.send({embeds: [statusEmbed]});
-        }else{
-          message.channel.send(quiz.error[0]);
-        }
-      break;
+      case "정보":
+      case "내정보":
+          var user = await quiz.getUser(userID);
+          if(user["isSign"]){
+          var userData = user["user-object-0"];
+          let statusEmbed = new MessageEmbed()
+          .setTitle("[ "+userData.rankname+" ] "+userData.name)
+          .addField(userData.name, userData.rankname)
+          .setDescription("Point : "+userData.point)
+          .setColor("F44444")
+          .setThumbnail(userData.rankimage)
+          .setFooter("To. "+userData.name)
+          .setTimestamp();
+          message.channel.send({embeds: [statusEmbed]});
+          }else{
+            message.channel.send(quiz.error[0]);
+          }
+        break;
       case "서버":
         var joinDate = new Date(message.guild.joinedAt);
         let infoEmbed = new MessageEmbed()
         .setColor("#F44444")
         .setTitle(message.guild.name+"서버의 정보")
-        .setThumbnail(message.guild.iconURL())
+        .setThumbnail(message.guild.iconURL({dynamic: false}))
         .addFields({
-          name: "> 서버 이름", value: message.guild.name, inline: true
+          name: "서버 이름", value: message.guild.name, inline: true
         },{
-          name: `> ${bot.user.username} 참가 날짜`, value: dateFormat.date(joinDate), inline: true
+          name: "서버 참가", value: dateFormat.date(joinDate), inline: true
         },{
-          name: "> 서버 멤버수", value: message.guild.memberCount+"명", inline: false
+          name: "서버 멤버수", value: message.guild.memberCount, inline: false
         },{
-          name: "> 만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: false
+          name: "서버 채널수", value: message.guild.channels.channelCountWithoutThreads, inline: true
+        },{
+          name: "만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: false
         })
         .setTimestamp();
         message.channel.send({embeds: [infoEmbed]});
@@ -274,7 +473,7 @@ bot.on('messageCreate', async message => {
         .setTitle(setWord["getWord"]==true?"초성퀴즈 진행중!":"초성퀴즈 시작!")
         .setDescription("S[답] 혹은 s[답]으로 답을 맞추시면 됩니다.")
         .addFields({
-          name : "초성: "+setWord["result"]["word"], value : "종류 : "+setWord["result"]["type"], inline : true
+          name : setWord["result"]["quiz"], value : "종류 : "+setWord["result"]["type"], inline : true
         })
         .setColor("F44444");
         message.channel.send({embeds: [wordEmbed]});

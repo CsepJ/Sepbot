@@ -15,7 +15,7 @@ server.get("/cmd", (req,res) => {
 });
 
 function keepAlive(){
-  server.listen(3000);
+  server.listen(3001);
 }
 
 module.exports = keepAlive;
