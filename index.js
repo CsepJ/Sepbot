@@ -3,7 +3,7 @@ const { Client, MessageActionRow,
   MessageEmbed, MessageFlags, 
   MessageAttachment, MessageCollector, 
   Intents } = require('discord.js');
-const request = require("request");
+const axios = require("axios").default;
 const Database = require("@replit/database");
 const db = new Database();
 const config = require('./config');
@@ -33,21 +33,18 @@ const bot = new Client({
     Intents.FLAGS.DIRECT_MESSAGE_TYPING
     ]
 });
-function translator(from, to, msg){
-  let options = {
-    url : "https://openapi.naver.com/v1/papago/n2mt",
-    headers: {
-      'X-Naver-Client-Id': config.naverid,
-      'X-Naver-Client-Secret': config.naverpw
-    },
-    form: {
-      'source': from,
-      'target': to,
-      'text': msg
-   },
-   json: true
-}
-return options;
+async function translator(from, to, msg){
+let postData = await axios.post("https://openapi.naver.com/v1/papago/n2mt",{
+  'source': from,
+  'target': to,
+  'text': msg
+},{
+  headers: {
+    'X-Naver-Client-Id': config.naverid,
+    'X-Naver-Client-Secret': config.naverpw
+  }
+});
+return postData.data.message.result.translatedText;
 }
 bot.on('ready', async () => {
   bot.user.setPresence({activities: [{name: "Sepbot is running", type: "LISTENING"}]});
@@ -184,38 +181,30 @@ bot.on("interactionCreate",async inter => {
       await inter.reply({embeds: [setNicknameEmbed], components: [setNickname]});
     }else if(commandName == "한국어"){
       var value = options.getString("단어");
-      var translateOption = translator("ko","en", value);
-      request.post(translateOption, async (err,res,body) => {
-        if(err) throw err;
-        let translateResult = body["message"]["result"]["translatedText"];
+      var translate = await translator("ko","en", value);
       let translateEmbed = new MessageEmbed()
       .setTitle("단어 번역")
       .setColor("#F44444")
       .addFields({
         "name" : "**> "+value+"**", "value" : "한국어(Korean)", "inline" : false
       },{
-        "name" : "**> "+translateResult+"**", "value" : "영어(English)", "inline" : false
+        "name" : "**> "+translate+"**", "value" : "영어(English)", "inline" : false
       })
       .setTimestamp();
       await inter.reply({embeds: [translateEmbed]});
-    });
     }else if(commandName == "영어"){
       var value = options.getString("단어");
-      var translateOption = translator("en","ko", value);
-      request.post(translateOption, async (err,res,body) => {
-        if(err) throw err;
-        let translateResult = body["message"]["result"]["translatedText"];
+      var translate = await translator("en","ko", value);
       let translateEmbed = new MessageEmbed()
       .setTitle("단어 번역")
       .setColor("#F44444")
       .addFields({
         "name" : "**> "+value+"**", "value" : "한국어(Korean)", "inline" : false
       },{
-        "name" : "**> "+translateResult+"**", "value" : "영어(English)", "inline" : false
+        "name" : "**> "+translate+"**", "value" : "영어(English)", "inline" : false
       })
       .setTimestamp();
       await inter.reply({embeds: [translateEmbed]});
-    });
     }else if(commandName == "이름"){
 			let userID = inter.user.id;
       var name=filtering.filter(options.getString("바꿀이름"));
@@ -311,7 +300,7 @@ bot.on('messageCreate', async message => {
     switch (command) {
       case "":
         let Embed = new MessageEmbed()
-        .setFooter("Ver-"+version, bot.user.displayAvatarURL({dynamic: false, format: "png"}))
+        .setFooter(`${bot.guilds.cache.size}개 서버에서 운영중...`, bot.user.displayAvatarURL({dynamic: false, format: "png"}))
         .setTitle("안녕하세요, 셉봇입니다.")
         .setDescription(`**사용방법: __${config.prefix}명령어__**`)
         .setColor("#F44444");
@@ -325,7 +314,7 @@ bot.on('messageCreate', async message => {
       case "도와줘":
         let cmdEmbed = new MessageEmbed()
         .setTitle("셉봇 명령어 리스트")
-        .setColor("#F44444")
+        .setColor("d144f4")
 				.setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
 				for(let i = 0; i < help.length;i++){
           cmdEmbed.addFields(
@@ -346,7 +335,7 @@ bot.on('messageCreate', async message => {
           .setTitle("[ "+userData.rankname+" ] "+userData.name)
           .addField(userData.name, userData.rankname)
           .setDescription("Point : "+userData.point)
-          .setColor("F44444")
+          .setColor("d144f4")
           .setAuthor(userData.rankname,userData.rankimage)
           .setFooter("To. "+userData.name)
           .setTimestamp();
@@ -368,9 +357,7 @@ bot.on('messageCreate', async message => {
         },{
           name: "서버 멤버수", value: message.guild.memberCount, inline: false
         },{
-          name: "서버 채널수", value: message.guild.channels.channelCountWithoutThreads, inline: true
-        },{
-          name: "만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: false
+          name: "만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: true
         })
         .setTimestamp();
         message.channel.send({embeds: [infoEmbed]});
@@ -381,7 +368,7 @@ bot.on('messageCreate', async message => {
           let logEmbed = new MessageEmbed()
           .setColor("#F44444")
           .setTitle("셉봇의 업데이트 내역")
-          .addField("> 업데이트 ("+version+")", "DiscordJS v13 업데이트", false)
+          .addField("> 업데이트 ("+version+")", "Axios패키지 사용", false)
           .setTimestamp()
           .setFooter("버전 : "+version);
           message.channel.send({embeds: [logEmbed]});
