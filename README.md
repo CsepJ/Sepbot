@@ -1,40 +1,13 @@
-Sepbot
+ Sepbot
 =======
 
-Please read the License.
+Please check the LICENSE.
 
 
 You should change the bot's prefix
 
-First, Go to Config.js file.
-```json
-{
+If you want to change the bot's prefix, go to config.js file, and change prefix value.
 
-"prefix" : "셉봇",
-
-}
-```
-Change it
-```json
-{
-
-"prefix" : "Sepbot",
-
-}
-```
-
-
-Then, You should change sending message too.
-
-```javascript
-message.channel.send("Hi");
-message.reply("Hi");
-```
-```javascript
-message.channel.send("hello");
-message.reply("this is example");
-```
-
-Add Sepbot / Nyunbot : [Sepbot Page](https://sepcod.com/)
+Add Sepbot / Sonnet : [Page](https://sepcod.com/)
 - - -
 Email : <sepbot90@gmail.com>

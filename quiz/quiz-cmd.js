@@ -27,7 +27,7 @@ let cmd = [{
     name : prefix+"칭호", value : "모든 칭호를 전송합니다! (DM으로 전송)", inline : true
 },
 {
-    name : prefix+"설정 (칭호번호)", value : "자신의 칭호를 설정합니다!", inline : false
+    name : prefix+"설정", value : "자신의 칭호를 설정합니다!", inline : false
 }];
 
 module.exports = cmd;

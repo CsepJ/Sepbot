@@ -77,8 +77,8 @@ bot.on('ready', async () => {
     name: "한국어",
     description: "한국어 => 영어로 번역합니다",
     options: [{
-      name: "단어",
-      description: "번역할 단어",
+      name: "한국어",
+      description: "영어로 번역할 단어",
       type: "STRING",
       required: true
     }]
@@ -86,12 +86,12 @@ bot.on('ready', async () => {
     name: "영어",
     description: "영어 => 한국어로 번역합니다",
     options: [{
-      name: "단어",
-      description: "번역할 단어",
+      name: "영어",
+      description: "한국어로 번역할 단어",
       type: "STRING",
       required: true
     }]
-  }];
+	}];
   await bot.application?.commands.set(commands);
     console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID: "+bot.user.id+"\n==========\nBot-Version: "+config.version+"\nBot-Servers: "+bot.guilds.cache.size+"개");
 });
@@ -106,11 +106,11 @@ bot.on("interactionCreate",async inter => {
           .setTitle("**"+result.result.name+"**")
           .setThumbnail(result.result.image)
           .setColor("#F44444")
-          .setDescription("To."+result.result.name)
+					.setDescription(`To. ${inter.user.username}`)
           .setTimestamp();
-          await inter.reply({embeds: [setRankEmbed]});
+          await inter.update({embeds: [setRankEmbed]});
         }else{
-          await inter.reply(result.reason);
+          await inter.update(`${inter.user.username}님 ${result.reason}`);
         }
     }
   }
@@ -130,6 +130,7 @@ bot.on("interactionCreate",async inter => {
       }
       await inter.reply({embeds : [cmdEmbed]});
     }else if(commandName === "정답"){
+			let userID = inter.user.id;
       var answerMsg = options.getString("정답");
       var isAnswer = await quiz.isAnswer(channelId, answerMsg);
       var user = await quiz.getUser(userID);
@@ -151,7 +152,7 @@ bot.on("interactionCreate",async inter => {
           }
         }else{
           if(isAnswer["result"]["correct"]!=null){
-            await inter.reply(message.author.username+"님, "+isAnswer["result"]["correct"]["length"]+"개 ("+isAnswer["result"]["correct"]["percentage"]+"%) 맞았습니다.")
+            await inter.reply( inter.user.username+"님, "+isAnswer["result"]["correct"]["length"]+"개 ("+isAnswer["result"]["correct"]["percentage"]+"%) 맞았습니다.")
           }else{
             await inter.reply(isAnswer["reason"]);
           }
@@ -180,11 +181,11 @@ bot.on("interactionCreate",async inter => {
       .setTimestamp();
       await inter.reply({embeds: [setNicknameEmbed], components: [setNickname]});
     }else if(commandName == "한국어"){
-      var value = options.getString("단어");
+      var value = options.getString("한국어").length>=100?options.getString("한국어").substring(0,100):options.getString("한국어");
       var translate = await translator("ko","en", value);
       let translateEmbed = new MessageEmbed()
-      .setTitle("단어 번역")
-      .setColor("#F44444")
+      .setTitle("번역")
+      .setColor("#0ff193")
       .addFields({
         "name" : "**> "+value+"**", "value" : "한국어(Korean)", "inline" : false
       },{
@@ -193,16 +194,16 @@ bot.on("interactionCreate",async inter => {
       .setTimestamp();
       await inter.reply({embeds: [translateEmbed]});
     }else if(commandName == "영어"){
-      var value = options.getString("단어");
+      var value = options.getString("영어").length>=100?options.getString("영어").substring(0,100):options.getString("영어");
       var translate = await translator("en","ko", value);
       let translateEmbed = new MessageEmbed()
-      .setTitle("단어 번역")
-      .setColor("#F44444")
+      .setTitle("Translation")
+      .setColor("#0ff193")
       .addFields({
-        "name" : "**> "+value+"**", "value" : "한국어(Korean)", "inline" : false
+        "name" : "**> "+value+"**", "value" : "영어(English)", "inline" : false
       },{
-        "name" : "**> "+translate+"**", "value" : "영어(English)", "inline" : false
-      })
+        "name" : "**> "+translate+"**", "value" : "한국어(Korean)", "inline" : false
+			})
       .setTimestamp();
       await inter.reply({embeds: [translateEmbed]});
     }else if(commandName == "이름"){
@@ -221,7 +222,7 @@ bot.on("guildCreate", (guild) => {
   if(guild.me.permissions.has("SEND_MESSAGES")){
 		if(guild.systemChannel){
     const welcomeEmbed = new MessageEmbed()
-    .setColor("#F44444")
+    .setColor("GOLD")
     .setTitle("안녕하세요 셉봇입니다")
     .setDescription(`도움말: ${config.prefix}명령어`);
     guild.systemChannel.send({embeds: [welcomeEmbed]});
@@ -244,26 +245,6 @@ bot.on('messageCreate', async message => {
       message.channel.send(quiz.error[0]);
     }
   }
-  if(msg.startsWith(`${prefix}설정 `)){
-    var num = msg.slice(prefix.length+3)
-    if(isNaN(num)){
-      message.channel.send("값이 숫자가 아닙니다!\n\n예시 : "+prefix+"칭호 1");
-    }else{
-      var result = await quiz.setRank(userID, num-1);
-      if(result["bool"]){
-        message.react("☑️");
-        var setRankEmbed = new MessageEmbed()
-        .setTitle("**"+result.result.name+"**")
-        .setThumbnail(result.result.image)
-        .setColor("#F44444")
-        .setDescription("To."+result.result.name)
-        .setTimestamp();
-        message.channel.send({embeds: [setRankEmbed]});
-      }else{
-        message.channel.send(result.reason);
-      }
-    }
-  }
   if(msg.startsWith("S") || msg.startsWith("s")){
     var answerMsg = msg.slice(1);
     var isAnswer = await quiz.isAnswer(channelID, answerMsg);
@@ -272,7 +253,7 @@ bot.on('messageCreate', async message => {
     if(isAnswer["isPlaying"]){
       if(isAnswer["result"]["bool"]){
         if(isSign){
-        var random = Math.floor(Math.random() * 20)+1;
+        var random = isAnswer["result"]["correct"]["length"];
         var add = await quiz.add(userID, "point", random);
         var correctEmbed = new MessageEmbed()
         .setTitle("***[ "+add.result.rankname+" ] "+add.result.name+"님이 맞추셨습니다***")
@@ -336,6 +317,7 @@ bot.on('messageCreate', async message => {
           .setDescription("Point : "+userData.point)
           .setColor("d144f4")
           .setAuthor(userData.rankname,userData.rankimage)
+					.setThumbnail(userData.rankimage)
           .setFooter("To. "+userData.name)
           .setTimestamp();
           message.channel.send({embeds: [statusEmbed]});
@@ -404,9 +386,10 @@ bot.on('messageCreate', async message => {
         .setTitle(setWord["getWord"]==true?"초성퀴즈 진행중!":"초성퀴즈 시작!")
         .setDescription("S[답] 혹은 s[답]으로 답을 맞추시면 됩니다.")
         .addFields({
-          name : setWord["result"]["word"], value : "종류 : "+setWord["result"]["type"], inline : true
+          name : "__"+setWord["result"]["word"]+"__", value : "종류 : "+setWord["result"]["type"], inline : true
         })
-        .setColor("F44444");
+        .setColor("F44444")
+				.setFooter(`어려우시다면 ${prefix}힌트 / ${prefix}패스를 해주세요!`);
         message.channel.send({embeds: [wordEmbed]});
       break;
       case "힌트":
@@ -414,7 +397,7 @@ bot.on('messageCreate', async message => {
         if(hint.isPlaying){
           let hintEmbed = new MessageEmbed()
           .setTitle("초성퀴즈 힌트")
-          .setDescription("힌트 : "+hint.result+"")
+          .setDescription("힌트 : __"+hint.result+"__")
           .setColor("F44444");
           message.channel.send({embeds: [hintEmbed]});
         }else{
@@ -426,25 +409,55 @@ bot.on('messageCreate', async message => {
         if(pass.isPlaying){
           let passEmbed = new MessageEmbed()
           .setTitle("초성퀴즈 패스")
-          .setDescription("정답 : "+pass.result+"")
+          .setDescription("정답 : __"+pass.result+"__")
           .setColor("F44444");
           message.channel.send({embeds: [passEmbed]});
         }else{
           message.channel.send(pass.reason);
         }
       break;
+			case "설정":
+			var nicknames = quiz.ranknames;
+      var nickmenus = nicknames.map((e,i) => {
+        return {
+          label: e,
+          description: "칭호: "+e,
+          value: e
+        }
+      });
+      var setNickname = new MessageActionRow()
+      .addComponents(
+        new MessageSelectMenu()
+        .setCustomId("Nickname")
+        .setPlaceholder("칭호 없음")
+        .addOptions(nickmenus)
+      );
+      var setNicknameEmbed = new MessageEmbed()
+      .setTitle("칭호를 설정해주세요")
+      .setDescription("아래 메뉴바에서 칭호를 설정해주세요")
+      .setColor("F44444")
+      .setTimestamp();
+      await message.channel.send({embeds: [setNicknameEmbed], components: [setNickname]});
+	break;
       case "랭크":
       case "랭킹":
         var ranking = await quiz.getRank(userID);
-        if(ranking["isSign"]==true){
-          var rank = ranking.result.rank.map((e,i) => {
-            if(i < 3){
-              return (i+1)+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point
-            }else{
-              return (ranking["result"]["index"]+(i-4))+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point;
-            }
-          });
-          message.channel.send(rank.join("\n===============\n"));
+        if(ranking["isSign"]){
+					if(ranking["isRanked"]){
+						var rank = ranking["ranks"].map((e,i) => {
+							return (i+1)+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point
+						});
+						message.channel.send(rank.join("\n===============\n"));
+					}else{
+						var rank = ranking["ranks"].map((e,i) => {
+							if(i <= 4){
+							return (i+1)+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point
+							}else{
+								return "__"+(ranking["userIndex"]+1)+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point+"__";
+							}
+						});
+						message.channel.send(rank.join("\n===============\n"));
+					}
         }else{
           message.channel.send(ranking.reason);
         }
@@ -455,10 +468,10 @@ bot.on('messageCreate', async message => {
         var result = rankname.map((e,i) => {
           return "**"+(i+1)+"번**  | "+e+" | "+rankpoint[i]+"점";
         });
+        message.author.send(result.join("\n===============\n"));
         var nicknameList_goestoDM = await message.channel.send("DM으로 전송되었습니다");
 				await wait(5000);
 				await nicknameList_goestoDM.delete();
-        message.author.send(result.join("\n===============\n"));
       break;
     }  //switch
   }

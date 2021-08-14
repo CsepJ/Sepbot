@@ -81,7 +81,6 @@ class Quiz{
         if(user.isSign == true){
             result["isSign"] = true;
             user["user-object-0"][key] = Number(user["user-object-0"][key])+Number(num);
-            console.log(user["user-object-0"][key]);
             this.cnt.set(userID, JSON.stringify(user["user-object-0"], null,2));
             result["result"] = user["user-object-0"];
         }else{
@@ -145,36 +144,38 @@ class Quiz{
         return result;
       }catch(err){ throw err }
     }
-    async getRank(userID){
-      try{
-        let result = {"isSign" : false, "result" : {"rank" : null, "index" : null}, "reason" : null};
-        let player = await this.getUser(userID);
-        if(player["isSign"] == true){
-            result["isSign"] = true;
-            let keys = await this.cnt.list();
-            let users = [];
-            for(var i=0;i<keys.length;i++){
+		async getRank(userID){
+			let result = {"ranks" : null, "reason" : null, "isSign" : false, "userIndex" : 0, "isRanked" : false};
+			let user = await this.getUser(userID);
+			result["isSign"] = user["isSign"]
+			if(user["isSign"]){
+			  let keys = await this.cnt.list();
+        let users = [];
+          for(var i=0;i<keys.length;i++){
               let userData = await this.cnt.get(keys[i]);
               userData=JSON.parse(userData);
-              if(userData["type"]=="USER"){
-                users.push(userData);
-              }else{
-                continue;
-              }
-            }
-            users.sort((a,b) => b.point - a.point);
-            let userRank = users.findIndex(e => e.id === userID);
-            let ranks = [
-                users[0],users[1],users[2], users[3], users[4]
-            ];
-            result["result"]["rank"] = ranks;
-            result["result"]["index"] = userRank;
-        }else{
-            result["reason"]= this.error[0];
-        }
-        return result;
-      }catch(err){ throw err }
-    }
+							if(userData["type"] == "USER"){
+              users.push(userData);
+							}
+          }
+				users.sort((a,b) => b.point - a.point);
+				let userRank = users.findIndex(e => e.id === userID)
+				result["userIndex"] = userRank;
+				if(userRank == 0 || userRank == 1 || userRank == 2 || userRank == 3 || userRank == 4){
+					result["isRanked"] = true; 
+					result["ranks"] = [
+						users[0], users[1], users[2], users[3], users[4]
+					]
+				}else{
+				result["ranks"] = [
+					users[0], users[1], users[2], users[3], users[userRank] 
+				]
+		}
+			}else{
+				result["reason"] = this.error[0];
+			}
+			return result;
+		}
       async signUp(userID, username){
       try{
         let result = {"reason" : this.error[1], "isSign" : true};
@@ -258,6 +259,24 @@ class Quiz{
         return result;
       }catch(err){ throw err }
     }
+		async findUserByName(userName){
+			let result = {"findUser" : false, "result" : null};
+			let users = [];
+			let keys = await this.cnt.list();
+			for(let i=0;i<keys.length;i++){
+				let data = await this.cnt.get(keys[i]);
+				data = JSON.parse(data);
+				if(data["type"] == "USER"){
+					users.push(data);
+				}
+			}
+			let arrayResults = users.filter(e => e.name.includes(userName));
+			result["findUser"] = arrayResults.length>0?true:false;
+			if(result["findUser"]){ 
+				result["result"] = arrayResults.length>3?[arrayResults[0],arrayResults[1],arrayResults[2]]:arrayResults
+			}
+			return result;
+		}
 }
 
 
