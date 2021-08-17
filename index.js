@@ -53,6 +53,12 @@ bot.on('ready', async () => {
     name: "명령어",
     description: "사용방법을 알려줍니다"
   },{
+    name: "회원가입",
+    description: "초성퀴즈 계정을 하나 생성합니다"
+  },{
+    name: "랭킹",
+    description: "초성퀴즈 랭킹 리스트를 불러옵니다"
+  },{
     name: "정답",
     description: "초성퀴즈 정답을 제출합니다",
     options: [{
@@ -215,7 +221,43 @@ bot.on("interactionCreate",async inter => {
       }else{
         await inter.reply(quiz.error[0]);
       }
-    }
+    }else if(commandName == "회원가입"){
+			let userID = inter.user.id;
+			var signup = await quiz.signUp(userID, inter.user.username);
+        if(signup["isSign"] == true){
+          await inter.reply(signup.reason);
+        }else{
+          let signupEmbed = new MessageEmbed()
+          .setColor("F44444")
+          .setTimestamp()
+          .setTitle("성공적으로 가입을 했습니다!")
+          .setDescription(`이제 "${prefix}퀴즈" 명령어로 시작해보세요!`);
+          await inter.reply({embeds: [signupEmbed]});
+        }
+		}else if(commandName == "랭킹" || commandName == "랭크"){
+			let userID = inter.user.id;
+			await inter.reply("셉봇이 랭킹을 불러올때까지 잠깐의 휴식을 만끽해보세요!");
+			var ranking = await quiz.getRank(userID);
+        if(ranking["isSign"]){
+					if(ranking["isRanked"]){
+						var rank = ranking["ranks"].map((e,i) => {
+							return (i+1)+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point
+						});
+						await inter.followUp(rank.join("\n===============\n"));
+					}else{
+						var rank = ranking["ranks"].map((e,i) => {
+							if(i <= 4){
+							return (i+1)+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point
+							}else{
+								return "__"+(ranking["userIndex"]+1)+"등 : [ "+e.rankname+" ] "+e.name+" | "+e.point+"__";
+							}
+						});
+						await inter.followUp(rank.join("\n===============\n"));
+					}
+        }else{
+          await inter.followUp(ranking.reason);
+        }
+		}
   }
 });
 bot.on("guildCreate", (guild) => {
@@ -336,7 +378,7 @@ bot.on('messageCreate', async message => {
         },{
           name: "서버 참가", value: dateFormat.date(joinDate), inline: true
         },{
-          name: "서버 멤버수", value: message.guild.memberCount, inline: false
+          name: "서버 멤버수", value: message.guild.memberCount+"명", inline: false
         },{
           name: "만들어진 날짜", value: dateFormat.date(message.guild.createdAt), inline: true
         })
