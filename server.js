@@ -1,4 +1,5 @@
 const help = require("./cmd");
+const update = require("./update");
 const express = require("express");
 const server = express();
 
@@ -6,12 +7,16 @@ server.get("/", (req,res) => {
   res.send("Server is On");
 });
 
-server.get("/cmd", (req,res) => {
-	res.header("Access-Control-Allow-Origin", "*");
-  res.write("<!Doctype html>");
-  res.write("<head><meta charset=\"UTF-8\"><title>Commands</title></head>");
-  res.write("<body>"+JSON.stringify(help,null,2)+"</body>");
-  res.end();
+server.post("/cmd", (req,res) => {
+	res.header("Access-Control-Allow-Origin", "https://sepcod.com");
+	res.json(help);
+	res.end();
+});
+
+server.post("/update", (req,res) => {
+	res.header("Access-Control-Allow-Origin", "https://sepcod.com");
+	res.json(update);
+	res.end();
 });
 
 function keepAlive(){

@@ -15,6 +15,7 @@ const Quiz = require('./quiz/quiz');
 const { prefix } = require('./config');
 const quiz_cmd = require("./quiz/quiz-cmd");
 const filtering = require("./filter");
+const update = require("./update.js")
 const dateFormat = require("./date-format");
 const fs = require("fs");
 const quiz = new Quiz(db);
@@ -124,16 +125,16 @@ bot.on("interactionCreate",async inter => {
     let { commandName, options, channelId } = inter;
     if(commandName === "명령어"){
       let cmdEmbed = new MessageEmbed()
-      .setTitle("셉봇 명령어 리스트")
-      .setColor("#F44444")
-      .setFooter("∴[단어] 는 변형해서 입력해주세요∴");
-      for(let i = 0; i < help.length;i++){
-        cmdEmbed.addFields(
-          {
-            name : `> **__${help[i]["cmd"]}__**`, value : help[i]["description"], inline : false
-          }
-        )
-      }
+        .setTitle("셉봇 명령어 리스트")
+        .setColor("d144f4")
+				.setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
+				for(let i = 0; i < help.length;i++){
+          cmdEmbed.addFields(
+            {
+              name : `> **__${help[i]["cmd"]}__**`, value : help[i]["description"], inline : false
+            }
+          )
+        }
       await inter.reply({embeds : [cmdEmbed]});
     }else if(commandName === "정답"){
 			let userID = inter.user.id;
@@ -391,9 +392,9 @@ bot.on('messageCreate', async message => {
           let logEmbed = new MessageEmbed()
           .setColor("#F44444")
           .setTitle("셉봇의 업데이트 내역")
-          .addField("> 업데이트 ("+version+")", "Axios패키지 사용", false)
+          .addField("> 업데이트 ("+update.version+")", update.log, false)
           .setTimestamp()
-          .setFooter("버전 : "+version);
+          .setFooter("버전 : "+update.version);
           message.channel.send({embeds: [logEmbed]});
           break;
       case "퀴즈":
