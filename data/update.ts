@@ -1,5 +1,9 @@
 export default [
     {
+        "version": "6.0U",
+        "description": "소인수분해 추가, 명령어/코로나 메세지 디자인 변경"
+    },
+    {
         "version" : "6.0",
         "description" : "타입스크립트로 언어 변경"
     },
@@ -12,7 +16,7 @@ export default [
         "description": "GCP서버로 이동"
 	},
     {
-        "version": "5.4R",
+        "version": "5.4U",
         "description": "Koreanbots 서버수 전송 설정"
 	},
 	{

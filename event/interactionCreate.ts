@@ -28,23 +28,95 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
     if(inter.isSelectMenu()){
         //SelectMenu
       }else if(inter.isButton()){
+        if(inter.customId == "cmd-1"){
+          let cmdEmbed = new MessageEmbed()
+            .setTitle("셉봇 명령어 리스트 - 1")
+            .setColor("#d144f4")
+                    .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
+                    for(let i = 0; i < cmd.slice(0,Math.round(cmd.length/3)).length;i++){
+              cmdEmbed.addFields(
+                {
+                  name : `> **/${cmd[i]["name"]}**`, value : cmd[i]["description"], inline : true
+                }
+              )
+            }
+            let cmdButton = new MessageActionRow()
+            .addComponents([
+              new MessageButton()
+              .setStyle("PRIMARY")
+              .setLabel("다음")
+              .setCustomId("cmd-2")
+            ])
+          await inter.update({embeds : [cmdEmbed], components: [cmdButton]});
+        }else if(inter.customId == "cmd-2"){
+          let cmdEmbed = new MessageEmbed()
+            .setTitle("셉봇 명령어 리스트 - 2")
+            .setColor("#d144f4")
+                    .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
+          for(let i = Math.round(cmd.length/3); i < cmd.slice(0,Math.round(cmd.length/3*2)).length;i++){
+            cmdEmbed.addFields(
+              {
+                name : `> **/${cmd[i]["name"]}**`, value : cmd[i]["description"], inline : true
+              }
+            )
+          }
+          let cmdButton = new MessageActionRow()
+            .addComponents([
+              new MessageButton()
+              .setStyle("PRIMARY")
+              .setLabel("다음")
+              .setCustomId("cmd-3"),
+              new MessageButton()
+              .setStyle("PRIMARY")
+              .setCustomId("cmd-1")
+              .setLabel("이전")
+            ])
+          inter.update({embeds: [cmdEmbed], components: [cmdButton]});
+        }else if(inter.customId == "cmd-3"){
+          let cmdEmbed = new MessageEmbed()
+          .setTitle("셉봇 명령어 리스트 - 3")
+          .setColor("#d144f4")
+                  .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
+          for(let i = Math.round(cmd.length/3*2); i < cmd.length;i++){
+            cmdEmbed.addFields(
+              {
+                name : `> **/${cmd[i]["name"]}**`, value : cmd[i]["description"], inline : true
+              }
+            )
+          }
+          let cmdButton = new MessageActionRow()
+            .addComponents([
+              new MessageButton()
+              .setStyle("PRIMARY")
+              .setCustomId("cmd-2")
+              .setLabel("이전")
+            ])
+          inter.update({embeds: [cmdEmbed], components: [cmdButton]});
+        }
           //Button
       }else if(inter.isCommand()){
         let { commandName, options, channelId: channelID } = inter;
         let userID = inter.user.id;
         if(commandName == "명령어"){
           let cmdEmbed = new MessageEmbed()
-            .setTitle("셉봇 명령어 리스트")
+            .setTitle("셉봇 명령어 리스트 - 1")
             .setColor("#d144f4")
                     .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
-                    for(let i = 0; i < cmd.length;i++){
+                    for(let i = 0; i < cmd.slice(0,Math.round(cmd.length/3)).length;i++){
               cmdEmbed.addFields(
                 {
-                  name : `> **__/${cmd[i]["name"]}__**`, value : cmd[i]["description"], inline : true
+                  name : `> **/${cmd[i]["name"]}**`, value : cmd[i]["description"], inline : true
                 }
               )
             }
-          await inter.reply({embeds : [cmdEmbed]});
+            let cmdButton = new MessageActionRow()
+            .addComponents([
+              new MessageButton()
+              .setStyle("PRIMARY")
+              .setLabel("다음")
+              .setCustomId("cmd-2")
+            ])
+          await inter.reply({embeds : [cmdEmbed], components: [cmdButton]});
         }else if(commandName == "한국어"){
           var value = options.getString("한국어").length>=100?options.getString("한국어").substring(0,100):options.getString("한국어");
           var translate = await translator("ko","en", value);
@@ -132,39 +204,14 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
             ]);
             inter.reply({embeds: [profileEmbed], components: [urlRedirectButton]});
           }else if(commandName == "코로나"){
-              let covid = await axios.get(`https://api.corona-19.kr/korea/beta/?serviceKey=${config.covidKey}`);
-              let vaccine = await axios.get(`https://api.corona-19.kr/korea/vaccine/?serviceKey=${config.covidKey}`);
-              let covidEmbed = new MessageEmbed()
-              .setTitle("한국 코로나19 현황")
-              .setFields([
-                {
-                    name: "확진자 수",
-                    value: "> "+util.comma(covid.data.korea.totalCnt)+"명",
-                    inline:true
-                },
-                {
-                    name: "사망자 수",
-                    value: "> "+util.comma(covid.data.korea.deathCnt)+"명",
-                    inline:true
-                },
-                {
-                    name: "백신 접종자 수 - 1차",
-                    value: "> "+util.comma(vaccine.data.korea["vaccine_1"]["vaccine_1"])+"명",
-                    inline: false
-                },
-                {
-                    name: "백신 접종자 수 - 2차",
-                    value: "> "+util.comma(vaccine.data.korea["vaccine_2"]["vaccine_2"])+"명",
-                    inline: true
-                },
-                {
-                    name: "백신 접종자 수 - 3차",
-                    value: "> "+util.comma(vaccine.data.korea["vaccine_3"]["vaccine_3"])+"명",
-                    inline: true
-                }
-            ])
-            .setColor("DARK_VIVID_PINK")
-            inter.reply({embeds: [covidEmbed]});
+            await inter.deferReply();
+            let covid = await axios.get(`https://api.corona-19.kr/korea/beta/?serviceKey=${config.covidKey}`);
+            let vaccine = await axios.get(`https://api.corona-19.kr/korea/vaccine/?serviceKey=${config.covidKey}`);
+            let covidEmbed = new MessageEmbed()
+            .setTitle("한국 코로나19 현황")
+            .setDescription("**```yaml\n확진자 수\n> "+util.comma(covid.data.korea.totalCnt)+"명\n\n사망자 수\n> "+util.comma(covid.data.korea.deathCnt)+"명\n\n백신 접종자 수 [ 1차 ]\n> "+util.comma(vaccine.data.korea["vaccine_1"]["vaccine_1"])+"명\n\n백신 접종자 수 [ 2차 ]\n> "+util.comma(vaccine.data.korea["vaccine_2"]["vaccine_2"])+"명\n\n백신 접종자 수 [ 3차 ]\n> "+util.comma(vaccine.data.korea["vaccine_3"]["vaccine_3"])+"명\n```**")
+            .setColor("#3370FF");
+            await inter.editReply({embeds: [covidEmbed]});
           }else if(commandName == "소인수분해"){
             let number = parseInt(inter.options.getInteger("숫자").toString().replace(/,/gi,""));
             let result = util.primeFactors(number)
