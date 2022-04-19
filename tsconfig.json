@@ -6,5 +6,6 @@
         "esModuleInterop": true,
         "strictNullChecks": false,
         "noImplicitAny": false,
+				"noImplicitThis": false,
     }
 }

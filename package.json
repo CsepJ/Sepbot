@@ -19,6 +19,7 @@
   "author": "SepJ",
   "license": "MIT",
   "dependencies": {
+    "@types/cheerio": "^0.22.31",
     "@types/sqlite3": "^3.1.8",
     "axios": "^0.26.1",
     "cheerio": "^1.0.0-rc.10",

@@ -234,12 +234,13 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
               );
               inter.reply({embeds: [inviteEmbed], components: [inviteButton]});
           }else if(commandName=="차트"){
+						await inter.deferReply();
             let result = await util.getMelonChart();
             result = result.map((e,i) => {
               return (i+1)+". "+e.title+" − "+e.artist
             });
             let chartEmbed = new MessageEmbed().setTitle("음악 차트 목록입니다.").setDescription("**```yaml\n"+result.join("\n\n")+"```**").setTimestamp().setColor("#33FF8F");
-            inter.reply({embeds: [chartEmbed]});
+            await inter.editReply({embeds: [chartEmbed]});
           }
       }
 }
