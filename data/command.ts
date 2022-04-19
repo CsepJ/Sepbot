@@ -20,6 +20,10 @@ export default [
         "description": "셉봇이 업데이트 소식을 알려드립니다"
       },
       {
+        "name" : "차트",
+        "description" : "멜론 차트를 가져옵니다."
+      },
+      {
         "name": "개발자",
         "description": "셉봇 개발자의 정보입니다"
       },

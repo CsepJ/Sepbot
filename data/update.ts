@@ -1,5 +1,9 @@
 export default [
     {
+        "version": "6.1",
+        "description": "음악 차트 기능 추가"
+    },
+    {
         "version": "6.0U",
         "description": "소인수분해 추가, 명령어/코로나 메세지 디자인 변경"
     },

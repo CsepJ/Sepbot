@@ -1,4 +1,6 @@
 import fs from "fs";
+import axios from "axios";
+import cheerio from "cheerio";
 let powNumber = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"];
 export function dateFormat(cdate:Date):string{
     let month = (cdate.getMonth()+1)>=10?cdate.getMonth().toString():"0"+(cdate.getMonth()+1);
@@ -60,4 +62,20 @@ export function multiplyFormat(multiplication:Array<{num: number, count: number}
         result.push(primeFactor.num.toString()+exponent);
     }
     return result.join(" × ");
+}
+export async function getMelonChart(){
+    let result = [];
+    let title = [];
+    let artist = [];
+    let axiosData = await axios.get("https://www.melon.com/chart/");
+    var $ = cheerio.load(axiosData.data);
+    $("#lst50 > td:nth-child(6) > div > div > div.ellipsis.rank01 > span > a").each(function(i,el){
+        title.push($(this).text());
+    });
+    $('#lst50 > td:nth-child(6) > div > div > div.ellipsis.rank02 > span.checkEllipsis > a').each(function() {
+        artist.push($(this).text());
+    });
+    title.splice(5,50); artist.splice(5,50);
+    for(let i=0;i<title.length;i++){result.push({title: title[i],artist: artist[i]})}
+    return result;
 }
