@@ -1,5 +1,6 @@
 import { Client, MessageActionRow, MessageButton, MessageSelectMenu, MessageEmbed, MessageFlags, MessageAttachment, MessageCollector, Intents } from "discord.js";
 import axios from "axios";
+import fs from "fs";
 import config from "../config/secret";
 import * as util from "./util";
 import sqlite from "sqlite3";
