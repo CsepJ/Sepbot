@@ -21,7 +21,8 @@ const bot = new Client({
 setInterval(() => {
 	try{
     axios.post(`https://koreanbots.dev/api/v2/bots/${bot.user.id}/stats`, {
-        servers: bot.guilds.cache.size
+        servers: bot.guilds.cache.size,
+        shards: 1
     }, {
         headers: {
             'Content-Type': "application/json",

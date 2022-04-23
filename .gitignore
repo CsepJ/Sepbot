@@ -6,4 +6,8 @@ data/data.db
 
 data/banWord.json
 
-error/
+error/*
+
+test.js
+
+package-lock.json

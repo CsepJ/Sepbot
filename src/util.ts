@@ -1,7 +1,11 @@
 import fs from "fs";
 import axios from "axios";
 import cheerio from "cheerio";
-let powNumber = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"];
+import https from "https";
+const powNumber = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"];
+export function isEmptyObject(obj: Object):boolean{
+    return Object.keys(obj).length==0;
+}
 export function dateFormat(cdate:Date):string{
     let month = (cdate.getMonth()+1)>=10?cdate.getMonth().toString():"0"+(cdate.getMonth()+1);
     let year = cdate.getFullYear();
@@ -77,5 +81,19 @@ export async function getMelonChart(){
     });
     title.splice(5,50); artist.splice(5,50);
     for(let i=0;i<title.length;i++){result.push({title: title[i],artist: artist[i]})}
+    return result;
+}
+export async function searchWord(word:string){
+    let result = {wordLength: 0, word: null}
+    let link = "https://stdict.korean.go.kr/api/search.do?key=EB0233E0148D7167A276BC74C107F925&q="+encodeURIComponent(word)+"&req_type=json&advanced=y&pos=1";
+    let searchResult = await axios.get(link,{
+        httpsAgent: new https.Agent({
+            rejectUnauthorized: false
+        })
+    });
+    if(!isEmptyObject(searchResult.data)){
+        result.wordLength = searchResult.data.channel.item.length;
+        result.word = searchResult.data.channel.item;
+    }
     return result;
 }

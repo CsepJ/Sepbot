@@ -32,12 +32,24 @@ export default [
           "description" : "현재 코로나 현황을 가져옵니다."
       },
       {
+        "name" : "단어",
+        "description": "입력하신 단어를 사전에서 찾습니다.",
+        "options": [
+          {
+            "name": "단어",
+            "description": "검색할 단어를 입력해주세요",
+            "type" : 3,
+            "required" : true
+          }
+        ]
+      },
+      {
           "name" : "소인수분해",
           "description" : "입력하신 숫자를 소인수분해합니다.",
           "options": [
               {
                   "name": "숫자",
-                  "description": "소인수분해 할 숫자",
+                  "description": "소인수분해 할 숫자를 입력해주세요",
                   "type" : 4,
                   "required": true
               }
@@ -49,7 +61,7 @@ export default [
         "options": [
           {
             "name": "한국어",
-            "description": "영어로 번역할 단어",
+            "description": "영어로 번역할 단어를 입력해주세요",
             "type": 3,
             "required": true
           }
@@ -61,7 +73,7 @@ export default [
         "options": [
           {
             "name": "영어",
-            "description": "한국어로 번역할 단어",
+            "description": "한국어로 번역할 단어를 입력해주세요",
             "type": 3,
             "required": true
           }

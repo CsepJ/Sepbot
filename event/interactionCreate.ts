@@ -2,7 +2,7 @@ import { Client, MessageActionRow,
     MessageButton, MessageSelectMenu, 
     MessageEmbed, MessageFlags, 
     MessageAttachment, MessageCollector, 
-    Intents, 
+    Intents, Message,
     Interaction} from "discord.js";
 import * as util from "../src/util";
 import update from "../data/update";
@@ -32,8 +32,11 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
           let cmdEmbed = new MessageEmbed()
             .setTitle("셉봇 명령어 리스트 - 1")
             .setColor("#d144f4")
-                    .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
-                    for(let i = 0; i < cmd.slice(0,Math.round(cmd.length/3)).length;i++){
+            .setFooter({
+              "text":"Ver-"+version,
+              "iconURL" : bot.user.displayAvatarURL({dynamic : false, format : "png"})
+            })
+          for(let i = 0; i < cmd.slice(0,Math.round(cmd.length/3)).length;i++){
               cmdEmbed.addFields(
                 {
                   name : `> **/${cmd[i]["name"]}**`, value : cmd[i]["description"], inline : true
@@ -52,7 +55,10 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
           let cmdEmbed = new MessageEmbed()
             .setTitle("셉봇 명령어 리스트 - 2")
             .setColor("#d144f4")
-                    .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
+            .setFooter({
+              "text":"Ver-"+version,
+              "iconURL" : bot.user.displayAvatarURL({dynamic : false, format : "png"})
+            })
           for(let i = Math.round(cmd.length/3); i < cmd.slice(0,Math.round(cmd.length/3*2)).length;i++){
             cmdEmbed.addFields(
               {
@@ -76,7 +82,10 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
           let cmdEmbed = new MessageEmbed()
           .setTitle("셉봇 명령어 리스트 - 3")
           .setColor("#d144f4")
-                  .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
+          .setFooter({
+            "text":"Ver-"+version,
+            "iconURL" : bot.user.displayAvatarURL({dynamic : false, format : "png"})
+          })
           for(let i = Math.round(cmd.length/3*2); i < cmd.length;i++){
             cmdEmbed.addFields(
               {
@@ -101,13 +110,14 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
           let cmdEmbed = new MessageEmbed()
             .setTitle("셉봇 명령어 리스트 - 1")
             .setColor("#d144f4")
-                    .setFooter("Ver-"+version,bot.user.displayAvatarURL({dynamic : false, format : "png"}))
-                    for(let i = 0; i < cmd.slice(0,Math.round(cmd.length/3)).length;i++){
-              cmdEmbed.addFields(
-                {
+            .setFooter({
+              "text":"Ver-"+version,
+              "iconURL" : bot.user.displayAvatarURL({dynamic : false, format : "png"})
+            })
+          for(let i = 0; i < cmd.slice(0,Math.round(cmd.length/3)).length;i++){
+            cmdEmbed.addFields({
                   name : `> **/${cmd[i]["name"]}**`, value : cmd[i]["description"], inline : true
-                }
-              )
+                })
             }
             let cmdButton = new MessageActionRow()
             .addComponents([
@@ -145,7 +155,10 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
           await inter.reply({embeds: [translateEmbed]});
         }else if(commandName == "셉봇"){
           let Embed = new MessageEmbed()
-            .setFooter(`${bot.guilds.cache.size}개 서버에서 운영중...`, bot.user.displayAvatarURL({dynamic: false, format: "png"}))
+            .setFooter({
+              "text" : `${bot.guilds.cache.size}개 서버에서 운영중...`,
+              "iconURL": bot.user.displayAvatarURL({dynamic: false, format: "png"})
+          })
             .setTitle("안녕하세요, 셉봇입니다.")
             .setDescription(`**사용방법: __${config.prefix}명령어__**`)
             .addFields([
@@ -173,18 +186,23 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
           .setTimestamp();
           inter.reply({embeds: [infoEmbed]});
         }else if(commandName == "업데이트"){
-              let logEmbed = new MessageEmbed().setColor("#F44444").setTitle("셉봇의 업데이트 내역").setTimestamp().setFooter("버전 : "+update[0].version); 
-            for(let i=0;i<update.length;i++){
+              let logEmbed = new MessageEmbed().setColor("#F44444").setTitle("셉봇의 업데이트 내역").setTimestamp().setFooter({
+                "text" : "버전 : "+update[0].version
+              }); 
+            for(let i=0;i<3;i++){
               logEmbed.addField("업데이트 (v "+update[i].version+")", update[i].description, true);
             }
             inter.reply({embeds: [logEmbed]});
             }else if(commandName == "개발자"){
             let profileEmbed = new MessageEmbed()
-            .setAuthor("SepJ", "https://sepimage.netlify.app/image/SepcodLogo.png")
+            .setAuthor({
+              "name": "SepJ",
+              "iconURL" : "https://sepimage.netlify.app/image/SepcodLogo.png"
+            })
             .setColor("#F44444")
             .setTitle("__셉봇 개발자 SepJ__")
             .setThumbnail("https://sepimage.netlify.app/image/SepcodLogo.png")
-            .setFooter("Sepbot Developer")
+            .setFooter({"text": "Sepbot Developer"})
             .setDescription("웹사이트나 채팅봇들을 만드는 평범한 학생입니다.")
             .addFields({
               name : "Sepbot / 셉봇", "value" : "각종 기능 중심으로 만들어진 봇", inline: true
@@ -241,6 +259,29 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
             });
             let chartEmbed = new MessageEmbed().setTitle("음악 차트 목록입니다.").setDescription("**```yaml\n"+result.join("\n\n")+"```**").setTimestamp().setColor("#33FF8F");
             await inter.editReply({embeds: [chartEmbed]});
+          }else if(commandName == "단어"){
+            await inter.deferReply();
+            let word = options.getString("단어");
+            let searchResult = await util.searchWord(word);
+            if(searchResult.wordLength==0){
+              let wordEmbed = new MessageEmbed()
+              .setTitle("셉봇이 단어를 찾지못했어요...")
+              .setDescription("**```yaml\n"+word+"가 명사인지 확인해주세요!\n\n한국어만 검색가능합니다!\n```**")
+              .setColor("#FF5A00");
+              await inter.editReply({embeds: [wordEmbed]});
+            }else{
+              let wordEmbed = new MessageEmbed()
+              .setTitle("'"+word+"' 에 대한 단어 검색 결과입니다.")
+              .setColor("#7B5FFF")
+              for(let index=0;index<(searchResult.wordLength>5?5:searchResult.wordLength);index++){
+                wordEmbed.addFields({
+                  "name": "> "+(index+1)+". "+searchResult.word[index].word, 
+                  "value": searchResult.word[index].sense.definition,
+                  "inline": true
+                });
+                await inter.editReply({embeds: [wordEmbed]});
+              }
+            }
           }
       }
 }
