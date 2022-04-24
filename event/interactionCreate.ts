@@ -177,11 +177,11 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
           .addFields({
             name: "서버 이름", value: inter.guild.name, inline: true
           },{
-            name: "서버 참가", value: util.dateFormat(new Date(inter.guild.joinedAt)), inline: true
+            name: "서버 참가", value: inter.guild.joinedAt.toLocaleString("ko-KR"), inline: true
           },{
             name: "서버 멤버수", value: inter.guild.memberCount+"명", inline: false
           },{
-            name: "만들어진 날짜", value: util.dateFormat(inter.guild.createdAt), inline: true
+            name: "만들어진 날짜", value: inter.guild.createdAt.toLocaleString("ko-KR"), inline: true
           })
           .setTimestamp();
           inter.reply({embeds: [infoEmbed]});

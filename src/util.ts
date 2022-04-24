@@ -96,4 +96,4 @@ export async function searchWord(word:string){
         result.word = searchResult.data.channel.item;
     }
     return result;
-}
+} 
