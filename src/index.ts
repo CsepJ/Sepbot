@@ -18,9 +18,9 @@ const bot = new Client({
         Intents.FLAGS.GUILD_PRESENCES
     ]
 });
-setInterval(() => {
-	try{
-    axios.post(`https://koreanbots.dev/api/v2/bots/${bot.user.id}/stats`, {
+setInterval(async () => {
+    try{
+        await axios.post(`https://koreanbots.dev/api/v2/bots/${bot.user.id}/stats`, {
         servers: bot.guilds.cache.size,
         shards: 1
     }, {
@@ -28,17 +28,20 @@ setInterval(() => {
             'Content-Type': "application/json",
             "Authorization": config.koreanbotsKey
         }
-    })
-	}catch(error){
-		fs.writeFileSync("../error/"+Date.now()+".txt", JSON.stringify(error,null,2));
-	}
-}, 300000);
+    });
+    console.log("Good")
+    }catch(error){
+        fs.writeFile("./error/"+Date.now()+".txt", String(error), (err) => {
+            if(err) throw err;
+        });
+    }
+}, 3600000)
 try{
 	bot.on("ready", () => readyEvent(bot));
 	bot.on("guildCreate", guildCreateEvent);
 	bot.on("interactionCreate", async (interaction) => interactionCreateEvent(bot, interaction));
 }catch(error){
-	fs.writeFileSync("../error/"+Date.now()+".txt", JSON.stringify(error,null,2));
+	fs.writeFileSync("./error/"+Date.now()+".txt", String(error));
 }
 keepAlive();
 bot.login(config.token);

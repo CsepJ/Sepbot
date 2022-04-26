@@ -17,7 +17,7 @@ export function dateFormat(cdate:Date):string{
     return result;
 }
 export function filter(sentence:string):string{
-    let words:Array<string> = JSON.parse(fs.readFileSync("../data/banWord.json", "utf8"));
+    let words:Array<string> = JSON.parse(fs.readFileSync("./data/banWord.json", "utf8"));
 	if(words.some(v => sentence.includes(v))){
 		for(let i=0;i<words.length;i++){
 			let regexp = new RegExp(words[i],"gi");
