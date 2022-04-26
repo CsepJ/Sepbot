@@ -231,14 +231,22 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
             .setColor("#3370FF");
             await inter.editReply({embeds: [covidEmbed]});
           }else if(commandName == "소인수분해"){
-            let number = parseInt(inter.options.getInteger("숫자").toString().replace(/,/gi,""));
-            let result = util.primeFactors(number)
-            let factorEmbed = new MessageEmbed()
-            .setTitle("소인수분해 결과")
-            .setDescription("```"+result+"```")
-            .setColor("#3370FF")
-            inter.reply({embeds: [factorEmbed]});
-          }else if(commandName == "초대"){
+            if(parseInt(inter.options.getInteger("숫자").toString()) > 0){
+                let number = parseInt(inter.options.getInteger("숫자").toString().replace(/,/gi,""));
+                let result = util.primeFactors(number)
+                let factorEmbed = new MessageEmbed()
+                .setTitle("소인수분해 결과")
+                .setDescription("```"+result+"```")
+                .setColor("#3370FF")
+                inter.reply({embeds: [factorEmbed]});
+              }else{
+                let errorEmbed = new MessageEmbed()
+                .setTitle("올바른 값을 입력해주세요!")
+                .setDescription("음수나 0을 제외한 자연수만 인식합니다")
+                .setColor("#F44444");
+                inter.reply({embeds: [errorEmbed]});
+              }
+            }else if(commandName == "초대"){
               let inviteEmbed = new MessageEmbed()
               .setTitle("셉봇 초대 링크")
               .setColor("#3370FF")
@@ -283,5 +291,6 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
               }
             }
           }
+          
       }
 }

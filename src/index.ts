@@ -21,27 +21,28 @@ const bot = new Client({
 setInterval(async () => {
     try{
         await axios.post(`https://koreanbots.dev/api/v2/bots/${bot.user.id}/stats`, {
-        servers: bot.guilds.cache.size,
-        shards: 1
-    }, {
-        headers: {
-            'Content-Type': "application/json",
-            "Authorization": config.koreanbotsKey
-        }
-    });
-    console.log("Good")
+            servers: bot.guilds.cache.size,
+            shards: 1
+        }, {
+            headers: {
+                'Content-Type': "application/json",
+                "Authorization": config.koreanbotsKey
+            }
+        });
     }catch(error){
-        fs.writeFile("./error/"+Date.now()+".txt", String(error), (err) => {
+        fs.writeFile("./error/"+(new Date().toLocaleString("ko-KR").replace(/( |:)/gi, "_").replace(/([ㄱ-힣]|\.)/gi, ""))+".txt", String(error), (err) => {
             if(err) throw err;
         });
     }
-}, 3600000)
+}, 10000)
 try{
 	bot.on("ready", () => readyEvent(bot));
 	bot.on("guildCreate", guildCreateEvent);
 	bot.on("interactionCreate", async (interaction) => interactionCreateEvent(bot, interaction));
 }catch(error){
-	fs.writeFileSync("./error/"+Date.now()+".txt", String(error));
+    fs.writeFile("./error/"+(new Date().toLocaleString("ko-KR").replace(/( |:)/gi, "_").replace(/([ㄱ-힣]|\.)/gi, ""))+".txt", String(error), (err) => {
+        if(err) throw err;
+    });
 }
 keepAlive();
 bot.login(config.token);

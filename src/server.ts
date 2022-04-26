@@ -23,5 +23,5 @@ server.post("/update", (req,res) => {
 });
 export default function keepAlive():void{
   var site = http.createServer(server);
-  site.listen(443, () => console.log("Sepbot is running on port :",443));
+  site.listen(config.port, () => console.log("Sepbot is running on port :",config.port));
 }

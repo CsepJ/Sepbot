@@ -10,5 +10,6 @@ export default {
     "naverId" : process.env.naverid,
     "naverPw" : process.env.naverpw,
     "koreanbotsKey": process.env.koreanbotskey,
-    "covidKey": process.env.covidkey
+    "covidKey": process.env.covidkey,
+    "port" : process.env.port
 };

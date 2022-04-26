@@ -1,5 +1,9 @@
 export default [
     {
+        "version" : "6.0.5",
+        "description": "오류 수정"
+    },
+    {
         "version" : "6.0.4",
         "description": "단어 검색 기능 추가"
     },
