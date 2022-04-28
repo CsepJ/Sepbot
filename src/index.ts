@@ -34,7 +34,7 @@ setInterval(async () => {
             if(err) throw err;
         });
     }
-}, 10000)
+}, 3600000)
 try{
 	bot.on("ready", () => readyEvent(bot));
 	bot.on("guildCreate", guildCreateEvent);
