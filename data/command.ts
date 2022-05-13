@@ -80,6 +80,18 @@ let command:Array<ApplicationCommandData> = [
             "required": true
           }
         ]
+      },
+      {
+        "name" : "메세지",
+        "description" : "메세지를 이모티콘처럼 나타내줍니다",
+        "options" : [
+          {
+            "name": "영문메세지",
+            "description" : "나타낼 메세지를 입력해주세요",
+            "type" : "STRING",
+            "required" : true
+          }
+        ]
       }
     ]
     export default command

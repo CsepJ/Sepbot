@@ -9,6 +9,7 @@ import update from "../data/update";
 import cmd from "../data/command";
 import config from "../config/secret";
 import axios from "axios";
+import letter from "../data/words";
 const version = update[0].version;
 const prefix = config.prefix;
 async function translator(from:string, to:string, msg:string):Promise<string>{
@@ -290,6 +291,21 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
                 await inter.editReply({embeds: [wordEmbed]});
               }
             }
+          }else if(commandName == "메세지") {
+            let msg = options.getString("영문메세지").toLowerCase().replace(/[ㄱ-힣]/gi, "").replace(/[0-9]/gi, "").split("");
+            let initEmbed = new MessageEmbed()
+              .setTitle(msg.join(""))
+              .setDescription("```"+letter.find(e => e.letter === msg[0]).picture+"```");
+            inter.reply({embeds: [initEmbed]})
+            .then(async () => {
+              for(let i=1;i<msg.length;i++) {
+                await util.sleep(500);
+                let letterEmbed = new MessageEmbed()
+                  .setTitle(msg.join(""))
+                  .setDescription("```"+letter.find(e => e.letter === msg[i]).picture+"```");
+                inter.editReply({embeds: [letterEmbed]});
+              }
+            })
           }
           
       }

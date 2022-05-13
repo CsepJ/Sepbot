@@ -30,6 +30,11 @@ export function filter(sentence:string):string{
 export function comma(x:number | bigint):string{
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+export function sleep(ms:number):Promise<void>{
+    return new Promise(resolve=>{
+        setTimeout(resolve,ms)
+    })
+}
 export function primeFactors(n):string{
     let result = [];
     while (n%2 == 0) {

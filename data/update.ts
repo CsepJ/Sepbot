@@ -1,5 +1,9 @@
 export default [
     {
+        "version" : "6.0.6 (Beta)",
+        "description" : "메세지 이모티콘 기능 추가"
+    },
+    {
         "version" : "6.0.5",
         "description": "오류 수정"
     },
