@@ -7,7 +7,7 @@ const server = express();
 
 server.set("port", 443);
 server.get("/", (req,res) => {
-  res.send("Server is On");
+  res.send("Hello, World!");
 });
 
 server.post("/cmd", (req,res) => {

@@ -292,18 +292,17 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
               }
             }
           }else if(commandName == "메세지") {
-            let msg = options.getString("영문메세지").toLowerCase().replace(/[ㄱ-힣]/gi, "").replace(/[0-9]/gi, "").split("");
+            let msg = options.getString("영문메세지").toLowerCase().replace(/[ㄱ-힣]/gi, "").replace(/[0-9]/gi, "").replace(/ /gi, "").split("");
             let initEmbed = new MessageEmbed()
               .setTitle(msg.join(""))
               .setDescription("```"+letter.find(e => e.letter === msg[0]).picture+"```");
-            inter.reply({embeds: [initEmbed]})
+            inter.reply({embeds: [initEmbed], ephemeral: true})
             .then(async () => {
               for(let i=1;i<msg.length;i++) {
-                await util.sleep(500);
                 let letterEmbed = new MessageEmbed()
                   .setTitle(msg.join(""))
                   .setDescription("```"+letter.find(e => e.letter === msg[i]).picture+"```");
-                inter.editReply({embeds: [letterEmbed]});
+                await inter.editReply({embeds: [letterEmbed]});
               }
             })
           }
