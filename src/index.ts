@@ -17,7 +17,7 @@ const bot = new Client({
         Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
         Intents.FLAGS.GUILD_PRESENCES
     ],
-	shards: "auto"
+    shards: "auto"
 });
 setInterval(async () => {
     try{

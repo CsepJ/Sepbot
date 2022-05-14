@@ -292,7 +292,7 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
               }
             }
           }else if(commandName == "메세지") {
-            let msg = options.getString("영문메세지").toLowerCase().replace(/[ㄱ-힣]/gi, "").replace(/[0-9]/gi, "").replace(/ /gi, "").split("");
+            let msg = options.getString("영문메세지").replace(/[ㄱ-힣]/gi, "").replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gim, "").split("");
             let initEmbed = new MessageEmbed()
               .setTitle(msg.join(""))
               .setDescription("```"+letter.find(e => e.letter === msg[0]).picture+"```");
