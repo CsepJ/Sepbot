@@ -299,6 +299,7 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
             inter.reply({embeds: [initEmbed], ephemeral: true})
             .then(async () => {
               for(let i=1;i<msg.length;i++) {
+                await util.sleep(1000);
                 let letterEmbed = new MessageEmbed()
                   .setTitle(msg.join(""))
                   .setDescription("```"+letter.find(e => e.letter === msg[i]).picture+"```");
