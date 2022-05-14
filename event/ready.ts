@@ -18,7 +18,6 @@ export default async function ready(bot:discord.Client):Promise<void>{
     //     });
     // })
     await bot.application.commands.set(command);
-
     console.log("Sepbot is running\n----------\nNode-Version: "+process.version+"\nBot-Name: "+bot.user.username+"\nBot-ID: "+bot.user.id+"\n==========\nBot-Version: "+config.version+"\nBot-Servers: "+bot.guilds.cache.size+"개");
     return;
 }
