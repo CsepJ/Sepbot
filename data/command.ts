@@ -1,3 +1,4 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
 import { ApplicationCommandData } from "discord.js"
 
 let command:Array<ApplicationCommandData> = [
@@ -92,6 +93,40 @@ let command:Array<ApplicationCommandData> = [
             "required" : true
           }
         ]
+      },
+      {
+        "name" : "인코드",
+        "description" : "유니코드로 변환합니다.",
+        "options" : [
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "유니코드",
+            "description" : "유니코드 관련 명령어"
+          },
+          {
+            "name" : "문자",
+            "description" : "유니코드로 변환할 문자를 입력해주세요",
+            "type" : "STRING",
+            "required" : true
+          }
+        ]
+      },
+      {
+        "name" : "디코드",
+        "description" : "유니코드에서 변환합니다.",
+        "options" : [
+          {
+            "type" : "SUB_COMMAND",
+            "name" : "유니코드",
+            "description" : "유니코드 관련 명령어"
+          },
+          {
+            "name" : "유니코드",
+            "description" : "문자로 변환할 유니코드를 입력해주세요",
+            "type" : "STRING",
+            "required" : true
+          }
+        ]
       }
-    ]
+    ];
     export default command

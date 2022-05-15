@@ -306,6 +306,20 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
                 await inter.editReply({embeds: [letterEmbed]});
               }
             })
+          }else if(commandName == "유니코드" && inter.options.getSubcommand() == "인코드") {
+            let msg = options.getString("문자");
+            let resultEmbed = new MessageEmbed()
+            .setColor("GREYPLE")
+            .setTitle(msg)
+            .setDescription(`\`\`\`${escape(msg)}\`\`\``);
+            inter.reply({ embeds: [resultEmbed]});
+          }else if(commandName == "유니코드" && options.getSubcommand() == "디코드") {
+            let unicode = options.getString("유니코드");
+            let resultEmbed = new MessageEmbed()
+            .setColor("GREYPLE")
+            .setTitle(unicode)
+            .setDescription(`\`\`\`${unescape(unicode)}\`\`\``);
+            inter.reply({ embeds: [resultEmbed]});
           }
           
       }

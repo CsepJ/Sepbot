@@ -19,6 +19,7 @@
   "author": "SepJ",
   "license": "MIT",
   "dependencies": {
+    "@discordjs/builders": "^0.13.0",
     "@types/cheerio": "^0.22.31",
     "@types/sqlite3": "^3.1.8",
     "axios": "^0.26.1",
