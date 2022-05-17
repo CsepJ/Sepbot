@@ -329,7 +329,7 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
             let resultEmbed = new MessageEmbed()
             .setColor("GREYPLE")
             .setTitle(text.length>=30?text.slice(0,30)+"......":text)
-            .setDescription(`\`\`\`**${encoded.join("")}**\`\`\``);
+            .setDescription(`**\`\`\`${encoded.join("")}\`\`\`**`);
             inter.reply({ embeds: [resultEmbed]});
           }else if(commandName == "ㅁㄴㅇㄹ" && options.getSubcommand() == "번역") {
             let formText = options.getString("글자");
@@ -341,7 +341,7 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
             let resultEmbed = new MessageEmbed() 
             .setColor("GREYPLE")
             .setTitle(formText.length>=30?formText.slice(0,30)+".......":formText)
-            .setDescription(`\`\`\`**${result.join("")}**\`\`\``);
+            .setDescription(`**\`\`\`${result.join("")}\`\`\`**`);
             inter.reply({ embeds: [resultEmbed]});
           }
           
