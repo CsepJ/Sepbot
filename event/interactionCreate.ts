@@ -320,6 +320,29 @@ export default async function interactionCreate(bot:Client, inter:Interaction){
             .setTitle(unicode)
             .setDescription(`\`\`\`${unescape(unicode)}\`\`\``);
             inter.reply({ embeds: [resultEmbed]});
+          }else if(commandName == "ㅁㄴㅇㄹ" && options.getSubcommand() == "변환") {
+            let text = options.getString("글자");
+            let encoded:string[] = [];
+            for(let i=0;i<text.length;i++) {
+              encoded.push(("0".repeat((8-(text[i].charCodeAt(0).toString(4).length)))+text[i].charCodeAt(0).toString(4)).replace(/0/g, "ㅁ").replace(/1/g, "ㄴ").replace(/2/g, "ㅇ").replace(/3/g, "ㄹ"));
+            }
+            let resultEmbed = new MessageEmbed()
+            .setColor("GREYPLE")
+            .setTitle(text.length>=30?text.slice(0,30)+"......":text)
+            .setDescription(`\`\`\`**${encoded.join("")}**\`\`\``);
+            inter.reply({ embeds: [resultEmbed]});
+          }else if(commandName == "ㅁㄴㅇㄹ" && options.getSubcommand() == "번역") {
+            let formText = options.getString("글자");
+            let code = formText.replace(/ㅁ/gi, "0").replace(/ㄴ/gi, "1").replace(/ㅇ/gi, "2").replace(/ㄹ/gi, "3");
+            let result = [];
+            for(let i=0;i<code.length/8;i++) {
+              result.push(String.fromCharCode(parseInt(code.substring((i)*8, (i+1)*8),4)));
+            }
+            let resultEmbed = new MessageEmbed() 
+            .setColor("GREYPLE")
+            .setTitle(formText.length>=30?formText.slice(0,30)+".......":formText)
+            .setDescription(`\`\`\`**${result.join("")}**\`\`\``);
+            inter.reply({ embeds: [resultEmbed]});
           }
           
       }

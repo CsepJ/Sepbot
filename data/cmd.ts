@@ -54,7 +54,12 @@ let commands = [
         .addStringOption(option => option.setName("문자").setDescription("유니코드로 변환할 문자를 입력해주세요.").setRequired(true))).addSubcommand(subcmd => 
         subcmd.setName("디코드")
         .setDescription("유니코드에서 변환합니다.")
-        .addStringOption(option => option.setName("유니코드").setDescription("문자로 변환할 유니코드를 입력해주세요.").setRequired(true)))
+        .addStringOption(option => option.setName("유니코드").setDescription("문자로 변환할 유니코드를 입력해주세요.").setRequired(true))),
+    new SlashCommandBuilder()
+        .setName('ㅁㄴㅇㄹ')
+        .setDescription("ㅁㄴㅇㄹ형식으로 글자를 변환을 합니다.")
+        .addSubcommand(subcmd => subcmd.setName("변환").setDescription("입력하신 글자를 ㅁㄴㅇㄹ형식으로 바꿉니다.").addStringOption(option => option.setName("글자").setDescription("변환할 글자를 입력해주세요.").setRequired(true)))
+        .addSubcommand(option => option.setName("번역").setDescription("ㅁㄴㅇㄹ형식 문자를 번역합니다.").addStringOption(option => option.setName("글자").setDescription("번역할 글자를 입력해주세요.").setRequired(true)))
 ];
 let cmd = [];
 for(let i=0;i<commands.length;i++) {
