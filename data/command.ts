@@ -1,4 +1,3 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { ApplicationCommandData } from "discord.js"
 
 let command:Array<ApplicationCommandData> = [

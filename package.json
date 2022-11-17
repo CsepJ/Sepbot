@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/CsepJ/Sepbot"
   },
   "keywords": [
     "Discordbot",
@@ -20,14 +20,15 @@
   "license": "MIT",
   "dependencies": {
     "@discordjs/builders": "^0.13.0",
+    "@types/axios": "^0.14.0",
     "@types/cheerio": "^0.22.31",
     "@types/sqlite3": "^3.1.8",
     "axios": "^0.26.1",
     "cheerio": "^1.0.0-rc.10",
-    "discord.js": "^13.6.0",
-    "dotenv": "^16.0.0",
+    "discord.js": "^14.6.0",
+    "dotenv": "^16.0.3",
     "express": "^4.17.3",
-    "sqlite3": "^5.0.3",
+    "sqlite3": "^5.1.2",
     "ts-node": "^10.7.0"
   }
 }
